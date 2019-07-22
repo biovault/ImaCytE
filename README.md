@@ -10,7 +10,7 @@ It is focused on the identification of the cell phenotypes that exist in the sam
 
 In case you have a Matlab 2016b or newer you can run ImaCytE from source code. 
 
-If you have an older version or you don't have a Matlab installed in your PC I can send you a standalone application of ImaCytE for Windows 7/10.
+If you have an older version or you don't have a Matlab installed in your PC you can download and install the executable from the [release page](https://github.com/biovault/ImaCytE/releases) .
 
 ### Using ImaCytE from source code
 
