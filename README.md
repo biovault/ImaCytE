@@ -4,7 +4,9 @@ ImaCytE is a tool developed for the interactive and data-driven exploration of I
 It is focused on the identification of the cell phenotypes that exist in the samples and the interactive exploration of their microenvironment. 
 
 ### Cite:
-"to be added"
+If you use ImaCytE within the scope of a scientific article you must cite the original publication:
+
+Somarakis A., van Unen V., Koning F., Lelieveldt B., and Höllt T. ,"ImaCytE: Visual Exploration of Cellular Microenvironments for Imaging Mass Cytometry Data" , IEEE Transactions on Visualization and Computer Graphics, accepted for publication 2019
 
 ## Getting started
 
@@ -31,3 +33,5 @@ In each subfolder you must include a mutliple **".tiff"** file with all the mark
 ### Contact
 
 Antonios Somarakis a.somarakis@lumc.nl
+
+[![DOI](https://zenodo.org/badge/197559881.svg)](https://zenodo.org/badge/latestdoi/197559881)
