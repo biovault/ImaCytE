@@ -1,7 +1,11 @@
 function [new,markers] = my_montage_txt2(fnam,tiles)
 
-%   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
+% Load the high dimensional images and concatenated according the tiles
+% variable
+%   - fnam: the filename of the cell segmentation masl
+%   - tiles: a matrix with the position of each image
 
+%   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 imgs=cell(length(fnam),1);
 for i=1:length(fnam)

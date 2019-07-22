@@ -1,6 +1,15 @@
 function Image_Context_Menu(source,~,num,handles,point2cluster)
 
+% Callback upon selection of of a brushing an area in an Image 
+%   - source: inherited from the varaible that is selected from the user,
+%   either "Normalization by row", "Normalization by column", "Normalization excluding diagonal"
+%   - num: Number of the selected image sample
+%   - handles: variable with all the handlers and saved variables of the
+%   environment
+%   - point2cluster: a vector that saves the cluster for each cell id 
+
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
+
 
     global cell4;
     global tsne_idx;
@@ -22,7 +31,6 @@ function Image_Context_Menu(source,~,num,handles,point2cluster)
                 else
                     Update_Scatter_Tissue_Continious_var(cell4,tsne_map,handles); 
                 end
-        case 'P.Hoover'
         case 'P.Brush'
                 zoom off;
                 pan off;
@@ -54,10 +62,6 @@ function Image_Context_Menu(source,~,num,handles,point2cluster)
                 end
                 
                 set(handles.figure1,'windowbuttonmotionfcn',@mousemove);
-        case 'C.Select'
-        case 'C.Hoover'
-        case 'C.Brush'
-
             
     end
   

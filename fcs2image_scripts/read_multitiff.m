@@ -1,5 +1,8 @@
 function imageStack=read_multitiff(fname)
 
+% Reads a mutli tiff file and assigns it to a high-dimensional matrix
+%   -fname: The filename of the multi tiff file
+
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 info = imfinfo(fname);

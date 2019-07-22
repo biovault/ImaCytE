@@ -58,7 +58,7 @@ handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes Color_Selection wait for user response (see UIRESUME)
+% Define the colors the user can chose among
 
 colors=[23 118 182 ;...
     255 127 0 ; ...

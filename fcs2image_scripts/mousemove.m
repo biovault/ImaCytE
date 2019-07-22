@@ -1,5 +1,8 @@
 function mousemove(src,~)
 
+% Callback function that on the fly interactively highlights any hovered
+% area in the heatmap
+
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 global heatmap_selection

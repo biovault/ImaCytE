@@ -1,11 +1,17 @@
  function Update_Tissue_Continious_var(handles)
 
+% Updates the colors of the cells in the images according to the assigned
+% specific feature 
+%   - handles: variable with all the handlers and saved variables of the
+%   environment
+
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 global n_data
 global tsne_idx
 global cell4
 
+%% Asign figure handlers and initialize the viewer 
 f_images=getappdata(handles.figure1,'Tissue_Figure');
 
 markers=getappdata(handles.figure1,'markers');
@@ -52,10 +58,12 @@ else
    errordlg('Wrong combination of samples is selected')
 end
 
-
+%% For each selected sample and selected marker
 for i=selection_samples
     for ii=selection_markers
         counter=counter+1;
+
+%% Color each pixel according to the assigned feature 
         val=n_data(tsne_idx == i,ii);   
         cellmask=cell4(i).mask_cell;
         cellmask(cell4(i).cell_borders)=0;
@@ -65,13 +73,15 @@ for i=selection_samples
         tissue(counter)=subplot(counter); 
         fg=imagesc(tissue(counter),temp);
         pbaspect(tissue(counter),[size(temp,2) size(temp,1) 1])
-        
+
+%% Impose the bakcground
         rgbI=zeros(size(temp,1),size(temp,2),3);
         hold(tissue(counter),'on');
         hOVM = image(tissue(counter),rgbI);
         set(hOVM, 'AlphaData', ~cellmask); 
         hold(tissue(counter),'off');
 
+% Impose a transparent layer in order to use for highlighting cells
         hold(tissue(counter),'on');
         hOVM2 = image(tissue(counter),~rgbI);
         hold(tissue(counter),'off');
@@ -89,7 +99,7 @@ for i=selection_samples
         norm_fac=find(tsne_idx == i,1)-1;
         set(hOVM,'ButtonDown',{@Image_Callback_cont,norm_fac,handles});
 
-
+%% Add a contect menu in order to be possible to brush image areas
         try
             d = uicontextmenu(get(f_images,'Parent'));
             Interact_per_point = uimenu('Parent',d,'Label','Point');

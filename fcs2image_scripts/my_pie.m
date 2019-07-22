@@ -1,5 +1,17 @@
-function [handler,mean_val,std_val]=my_pie(handles,distro,init_blob,fr,ax_,z)
+function [handler,mean_val,std_val]=my_pie(handles,idx_motif_cells,motif_idx,fr,ax_,z)
 
+% Creates the motif representation 
+%   - handles: variable with all the handlers and saved variables of the
+%   environment
+%   - idx_motif_cells: a matrix which shows for each cells(row) of those grouped under this motif the relative frequency of having a cluster (column) in their microenvironment 
+%   - motif_idx: a vector for the cluster of the cells of each motif
+%   - fr: vector with the relative frequency regarding the cluster of a cell for each motif
+%   - ax: the axis object where the scatter plot will be presented
+%   - z : vector with the z-score value of each motif
+
+
+
+%   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 flag=1;
@@ -13,22 +25,19 @@ elseif nargin <6
 end
 
 std_val=[];
-if size(distro,1)==1
-    mean_val2=distro;
+if size(idx_motif_cells,1)==1
+    mean_val2=idx_motif_cells;
 else
-    mean_val2=mean(distro);
+    mean_val2=mean(idx_motif_cells);
 end
 mean_val=mean_val2(mean_val2 ~=0);
 r_s=(0.1+power(fr,1/2))*0.45;
 
-% load colorbrewer.mat
-% cmap=[colorbrewer.qual.Set1{end} ;colorbrewer.qual.Set2{end};colorbrewer.qual.Set3{end};colorbrewer.qual.Pastel2{end};colorbrewer.qual.Pastel1{end}];
-% cmap2=cmap(1:size(distro,2),:)/255;
 cmap2=getappdata(handles.figure1,'cmap');
-cmap2=cmap2(1:size(distro,2),:);
+cmap2=cmap2(1:size(idx_motif_cells,2),:);
 
 
-if isempty(mean_val)
+if isempty(mean_val)  % In case that the motif represents cells with none cell in their microenvironment
     th_ = linspace(0,2*pi, 100) ;
     r=0.6;
     x_ = r*cos(th_) ;
@@ -36,8 +45,8 @@ if isempty(mean_val)
     handler(2)=patch(ax_,x_,y_,[1 1 1]) ;
     set(handler(2),'EdgeColor',[1 1 1 ]);
     
-    handler(1)=plot_central_blob(init_blob,cmap2,r_s,ax_);
-elseif length(mean_val)==1
+    handler(1)=plot_central_blob(motif_idx,cmap2,r_s,ax_);
+elseif length(mean_val)==1 % In case that the motif represents cells with cells from one cluster type in their microenvironment
     cmap=cmap2(find(mean_val2),:);
     i=1;
     th_ = linspace(0,2*pi, 100) ;
@@ -59,14 +68,14 @@ elseif length(mean_val)==1
     y_ = r*sin(th_) ;
     handler(3)=patch(ax_,x_,y_,[1 1 1]) ;
 
-    handler(1)=plot_central_blob(init_blob,cmap2,r_s,ax_);
-else
+    handler(1)=plot_central_blob(motif_idx,cmap2,r_s,ax_);
+else % In case that the motif represents cells with cells from two or more cluster types in their microenvironment
     cmap=cmap2(find(mean_val2),:);
     
-    if size(distro,1)==1
-        std_val=zeros(1,size(distro,2));
+    if size(idx_motif_cells,1)==1
+        std_val=zeros(1,size(idx_motif_cells,2));
     else
-        std_val=std(distro);
+        std_val=std(idx_motif_cells);
     end
     std_val=std_val(mean_val2 ~=0);
     
@@ -103,19 +112,13 @@ else
     handler(2)=patch(ax_,x_,y_,[1 1 1]) ;
     set(handler(2),'EdgeColor',[1 1 1 ]);
 
-    handler(1)=plot_central_blob(init_blob,cmap2,r_s,ax_);
+    handler(1)=plot_central_blob(motif_idx,cmap2,r_s,ax_);
 
 end
 
-if flag
-%     c=mat2gray(z,[1000 9000]);
-%     c = gray;
-%     c = flipud(c);
+if flag   % Plots the glyph that represents the z-score
     handler(i*2+3)=patch(ax_,[1 0.45 1],[1 1 0.45],z);
     caxis([0 1]);
-%     colormap(ax_,c);
-
-%     colormap(ax_, gray)
 end
 
 set(ax_,'ylim',[-1 1])
@@ -123,7 +126,7 @@ set(ax_,'xlim',[-1 1])
 set(ax_, 'visible', 'off')
 set(ax_,'PlotBoxAspectRatio',[1 1 1])
 
-function handler=plot_central_blob(init_blob,cmap2,r_s,ax_)
+function handler=plot_central_blob(init_blob,cmap2,r_s,ax_)   % Plots the center of each motif
     th_ = linspace(0,2*pi, 100) ;
     if length(init_blob) == 1    
         x_ = r_s*cos(th_) ;

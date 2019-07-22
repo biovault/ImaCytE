@@ -1,10 +1,13 @@
-function Scatter_Context_Menu(source,evnt,handles)
+function Scatter_Context_Menu(source,~,handles)
+
+% Callback upon selection of of a brushing an area in the scatter plot 
+%   - source: inherited from the varaible that is selected from the user,
+%   either "Normalization by row", "Normalization by column", "Normalization excluding diagonal"
+%   - handles: variable with all the handlers and saved variables of the
+%   environment
 
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
-    global cell4;
-    global tsne_idx;
-    global tsne_map;
     global p_
     global heatmap_selection
     axes_=findobj('Tag','Scatter_axes');
@@ -16,28 +19,6 @@ function Scatter_Context_Menu(source,evnt,handles)
     value1=getappdata(handles.figure1,'selection_markers');
     value1=value1(1);
     switch source.Label
-        case 'Merge whole clusters'
-                    axes(axes_)
-                    zoom off;
-                    pan off;
-                    rotate3d off;
-                    datacursormode off;
-%                     put('selected_position',[]);
-                    p1=selectdata('SelectionMode','Closest');
-                    p2=selectdata('SelectionMode','Closest');
-                    p1=fliplr(~cellfun(@isempty,p1)');
-                    p2=fliplr(~cellfun(@isempty,p2)');
-%                     p1=find(~cellfun(@isempty,p1));
-%                     p2=find(~cellfun(@isempty,p2));
-                    new=clustMembsCell([find(p1) find(p2)]);
-                    new=horzcat(new{:});
-                    clustMembsCell{p2}=[];    % prwta to 2o ,se periptwsi pou p1 einai idio me p2 na min maurisoun ola ta cells
-                    clustMembsCell{p1}=new;
-                    clustMembsCell=clustMembsCell(~cellfun('isempty',clustMembsCell));
-                    setappdata(handles.figure1, 'clustMembsCell', clustMembsCell)
-                    
-                    Update_Scatter_Tissue(cell4,tsne_map,handles,tsne_idx);
-                    heatmap_data(handles)
         case 'P.Select'
                 axes(axes_)
                 zoom off;
@@ -49,7 +30,6 @@ function Scatter_Context_Menu(source,evnt,handles)
                 else
                     Update_Scatter_Tissue_Continious_var(handles); 
                 end
-        case 'P.Hoover'
         case 'Brush'
                 axes(axes_)
                 zoom off;
@@ -73,21 +53,6 @@ function Scatter_Context_Menu(source,evnt,handles)
                 catch
                 end
                 
-                set(handles.figure1,'windowbuttonmotionfcn',@mousemove);        
-        case 'C.Select'
-        case 'C.Hoover'
-        case 'C.Brush'
-            axes(axes_)
-            zoom off;
-            pan off;
-            rotate3d off;
-            datacursormode off;
-
-            clustMembsCell=getappdata(handles.figure1, 'clustMembsCell');
-            Update_Scatter_Tissue(cell4,tsne_map,handles,tsne_idx,false);
-            p=selectdata('SelectionMode','Closest');
-            p=fliplr(~cellfun(@isempty,p)');
-            Show_Tissue_Selection(clustMembsCell{p},handles)
-            
+                set(handles.figure1,'windowbuttonmotionfcn',@mousemove);                   
     end
   

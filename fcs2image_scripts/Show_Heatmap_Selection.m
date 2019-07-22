@@ -1,5 +1,8 @@
 function Show_Heatmap_Selection(selection)
 
+% Highlights the selected cluster from the heatmap
+%   -selection: scalar representing the selected cluster
+
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
     transparency=0.7;

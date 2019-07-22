@@ -1,8 +1,13 @@
 function Show_Tissue_Selection(list2,handles)
 
+% Takes as argument the selected cells and highlights them in the images
+% when the cluster of the cells is visualized with the color channel
+%   - list2: the id's of the selected cells
+%   - handles: variable with all the handlers and saved variables of the
+%   environment
+
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
-% if nargin<3;  flag=false;  end % flag is for legend selection ,whenever flag is true the previous image is preserved ;
 global cell4
 global tsne_idx
 global find_selection

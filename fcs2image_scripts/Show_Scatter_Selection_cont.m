@@ -1,5 +1,11 @@
 function Show_Scatter_Selection_cont(list_of_cells,handles)
 
+% Takes as argument the selected cells and highlights them in the scatter
+% plot when a specific feature of the cells is visualized with the color channel
+%   - list_of_cells: the id's of the selected cells
+%   - handles: variable with all the handlers and saved variables of the
+%   environment
+
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 global tsne_map
@@ -23,14 +29,11 @@ colormap(viridis);
 caxis([minvalue valuemax]);
 c=colorbar(f);
 set(c,'ButtonDown',{@colormapCallBack,f})
-% hold(f,'off') ;
-% 
-% hold(f,'on') ; 
+
     w=scatter(f,tsne_map(:,1),tsne_map(:,2));
     set(w,'MarkerEdgeAlpha',0)
     set(w,'ButtonDown',{@Image_Callback_cont,0,handles});
 c=colorbar(f);
 set(c,'ButtonDown',{@colormapCallBack,f});
-% hold(f,'off') ;
 
 set(f,'Tag','Scatter_axes');

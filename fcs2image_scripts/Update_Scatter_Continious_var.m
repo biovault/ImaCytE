@@ -1,5 +1,10 @@
 function Update_Scatter_Continious_var(handles)
 
+% Updates the colors of the cells in the scatter plot according to the
+% assigned single feature
+%   - handles: variable with all the handlers and saved variables of the
+%   environment
+
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 global n_data

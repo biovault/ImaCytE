@@ -1,5 +1,10 @@
 function heatmap_data(handles)
 
+% Illustration of the heatmap accompanied from the dendrogram and the
+% colors corresponding to each cluster
+%   - handles: variable with all the handlers and saved variables of the
+%   environment
+
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 global n_data
@@ -29,39 +34,21 @@ for i=1:numClust
     fin_mat(:,i)=temp;
 end
 
-% fin_mat=[fin_mat n_data(p_,markerlist)];
-% cmap=[cmap ;[ 0 0 0]];
-% cluster_names=[ cluster_names ; {'Selection'}];
-
 n=my_normalize(fin_mat,'row'); %standardize per row
 
-% n=norm_single_column( fin_mat,0,1);
-
-% figure; heatmap(fin_mat, cluster_names, markers, [], 'TickAngle', 60,'ShowAllTicks', true,'Colormap', viridis);
-% figure; my_bar(ones(size(fin_mat,2),1),[],cmap);
-
+%% Dendrogram calculation
 ax_dendr=axes(f);
 axes(ax_dendr)
 [tree,leafOrder]=dendro_calculator(n);
 
-
-% clustMembsCell=clustMembsCell(leafOrder);
-% cluster_names=cluster_names(leafOrder);
-% cmap=cmap(leafOrder,:);
-% fin_mat=fin_mat(:,leafOrder);
-% setappdata(handles.figure1,'leafOrder',leafOrder);
-
-% setappdata(handles.figure1, 'clustMembsCell', clustMembsCell);
-% setappdata(handles.figure1, 'cluster_names', cluster_names);
-% setappdata(handles.figure1, 'cmap', cmap);
-
+%% Dendrogram illustration
 dendr=dendrogram(tree,100,'Reorder',leafOrder); %,'ColorThreshold',0.65*max(tree(:,3)));
 set(dendr,'ButtonDown',{@dendroCallBack,handles})
 set(ax_dendr, 'visible', 'off')
 set(ax_dendr,'xlim',[0.5 size(fin_mat,2)+0.5])
 set(ax_dendr,'Position',[0.08 0.89 0.82 0.11]);
 
-
+%% Illustration of the heatmap 
 ax_=axes(f);
 axes(ax_)
 h=my_heatmap(n, cluster_names, markers, [], 'TickAngle', 60,'ShowAllTicks', true,'Colormap', viridis);
@@ -77,6 +64,7 @@ popup=uicontrol( f,'Style', 'popup',...
            'Callback', {@heatmap_data_Callback,ax_,fin_mat}); 
 set(popup,'Position',[0.92 0.9 0.07 0.07]);
 
+%%  Illusttration of the colors corresponing to each cluster
 ax_cell_Pheno=axes(f);
 rw4=my_bar(ones(size(fin_mat,2),1),[],cmap,ax_cell_Pheno);
 set(ax_cell_Pheno, 'visible', 'off')
@@ -88,14 +76,13 @@ set(ax_cell_Pheno,'Position',[0.08 0 0.82 0.10]);
 
 d = uicontextmenu;
 uimenu('Parent',d,'Label','Merge Selected Clusters','Callback',{@Heatmap_Context_menu,handles});
-% uimenu('Parent',d,'Label','Annotate Selected Cluster','Callback',{@Heatmap_Context_menu,handles});
-% uimenu('Parent',d,'Label','Change Color','Callback',{@Heatmap_Context_menu,handles});
-
 set(h,'UIContextMenu',d);    
 set(ax_,'Position',[0.08 0.10 0.82 0.79]);
 
 
 function nodeCallback(hObject,rt,clustMembsCell,handles)
+
+% Callback for the selection of a cluster from the heatmap and highlighted in the tsne map and the tissue samples
 
 global p_
 global heatmap_selection
@@ -133,6 +120,10 @@ else
 end 
 
 function nodeCallback_axes(hObject,~,handles)
+
+% Callcack for the selection of a box in the bottom of the heatmap. With
+% single click the annotation of a cluster can be achieved. With double
+% click the change of the color.
 
 persistent chk
 
@@ -174,8 +165,6 @@ else
         if length(idxs)==1
            temp=hsv_colors(i,:);
         else
-        %     [~,c]=kmeans(nchoosek([0.4:0.01:1],2),length(idxs));
-        %     temp=[repmat(hsv_colors(i,1),length(idxs),1) c(:,1)  c(:,2)];
             [~,c]=kmeans([0.1:0.01:1]',length(idxs));
             temp=[repmat(hsv_colors(i,1),length(idxs),1) c  repmat(hsv_colors(i,3),length(idxs),1)];
          end

@@ -1,5 +1,13 @@
 function handleToThisBarSeries=my_bar(array,names,cmap,ax_)
 
+% Bar scatter plot with each column a different color
+%   - array: a vector with the values for each column
+%   - names: a cell array with the names of the plotted columns
+%   - cmap: an array with the RGB colors for each column
+%   - ax: the axis object where the scatter plot will be presented
+
+%   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
+
 if nargin <4
     ax_=gca;
 end

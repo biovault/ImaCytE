@@ -1,4 +1,13 @@
- function Motif_checkBox_Callback(hObject,~,list2,handles,clr_center)
+ function Motif_checkBox_Callback(hObject,~,idx_motif_cells,handles,motif_idx)
+
+% Callback function that funcitons upon selection of a motif
+%   - hObject: used as identifierof the selected motif
+%   - list2: identifier of the figure object whehre the motif will be created
+%   - handles: variable with all the handlers and saved variables of the
+%   environment
+%   - idx_motif_cells: a vector that saves the idxes of the cells that
+%   are grouped under the selected motif.
+%   -motif_idx: a scalar of the cluster of the cell of under the selected motif.
 
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
@@ -12,22 +21,16 @@ if isempty(chk)
     if chk == 1
         if get(hObject,'Tag')== 0; return; end
         motif_num = str2num(get(hObject,'Tag'));
-        list2=list2{motif_num};
-        
-%         global n_data
-%         neww=(n_data(list2,[2 7:38])/1);
-%         neww_mean=mean(neww);
-%         neww_var=var(neww);
-%         figure; plot(neww_mean);  hold on ; plot(neww_var); hold off;
-        
+        idx_motif_cells=idx_motif_cells{motif_num};
+              
         clusteri=getappdata(handles.figure1,'clusteri');
-        x_=unique(clusteri(list2,:));
-        list3=[list2; x_(2:end)];
+        x_=unique(clusteri(idx_motif_cells,:));
+        list3=[idx_motif_cells; x_(2:end)];
         points=union(list3,points);
         Show_Tissue_Selection(unique(points),handles);
         
         norm_neigh=getappdata(handles.figure1,'norm_neigh_list');
-        norm_neigh=norm_neigh(list2,:);
+        norm_neigh=norm_neigh(idx_motif_cells,:);
         Z = linkage(norm_neigh);
         T = my_cluster(Z,'cutoff',0.8,'depth',4);
         if max(T)>9
@@ -36,10 +39,10 @@ if isempty(chk)
 
         hfig=figure('Name',['2nd level of Motif Nr.' num2str(motif_num)]);
         for i=1:length(unique(T))
-            idx_motif_cells{i}=list2(T==i);
+            idx_motif_cells{i}=idx_motif_cells(T==i);
             ax1(i)=subplot(3,3,i,axes(hfig));
             fr(i)=length(idx_motif_cells{i})/length(T);
-            [handlers{i},mean_val{i},std_val{i}]=my_pie(handles,norm_neigh(T == i,:),clr_center,fr(i),ax1(i));
+            [handlers{i},mean_val{i},std_val{i}]=my_pie(handles,norm_neigh(T == i,:),motif_idx,fr(i),ax1(i));
             set(handlers{i},'Tag',num2str(i));
             set(handlers{i},'ButtonDownFcn',{@Motif_callback,idx_motif_cells{i},handles});
         end

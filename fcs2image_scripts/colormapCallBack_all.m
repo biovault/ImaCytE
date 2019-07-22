@@ -1,7 +1,11 @@
 function colormapCallBack_all(x,~,tissue)
 
-%   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
+% Callback upon selection of  the min and max values to of color to all the illustrated images 
+%   - x: the object identifier of the images, of which the color axis variable is going to change 
+%   -tissue: A cell structure, where each cell represents the object
+%   identifier of each image
 
+%   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 persistent chk
 
 if isempty(chk)

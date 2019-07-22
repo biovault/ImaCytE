@@ -1,7 +1,12 @@
 function Show_Tissue_Selection_cont(list2,handles)
 
-%   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
+% Takes as argument the selected cells and highlights them in the images
+% when a specific feature of the cells is visualized with the color channel
+%   - list_of_cells: the id's of the selected cells
+%   - handles: variable with all the handlers and saved variables of the
+%   environment
 
+%   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 global cell4;
 global tsne_idx;
 global find_selection

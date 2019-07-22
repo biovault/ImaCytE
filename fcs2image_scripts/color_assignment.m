@@ -1,5 +1,12 @@
 function color_assignment( handles,thres_value)
 
+% Assign a color to each cluster according to its high- dimensional median
+% value 
+%   - handles: variable with all the handlers and saved variables of the
+%   environment
+%   - thres_values: variable with the percentage value above which the
+%   hierarchical clustering is partitioned
+
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 global n_data
@@ -7,9 +14,9 @@ if nargin <2
     thres_value=0.3;
 end
 
-clustMembsCell=getappdata(handles.figure1, 'clustMembsCell');
-cluster_names=getappdata(handles.figure1, 'cluster_names');
-markerlist=getappdata(handles.figure1,'selected_markers');
+clustMembsCell=getappdata(handles.figure1, 'clustMembsCell');   %Load clusters
+cluster_names=getappdata(handles.figure1, 'cluster_names');     %Load cluster names in order to arrange their order according to the way they are illustrated in the heatmap    
+markerlist=getappdata(handles.figure1,'selected_markers');      %Load markers in order to cluster the centroids of the clusters according to their high dimensional signature
 
 colors=[23 118 182 ;...
     255 127 0 ; ...

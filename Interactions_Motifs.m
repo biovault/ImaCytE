@@ -24,6 +24,11 @@ function varargout = Interactions_Motifs(varargin)
 
 % Last Modified by GUIDE v2.5 15-Mar-2019 17:32:01
 
+% In this pat of the tool the interactive analysis of cellular
+% microenvironment is performed
+
+%   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
+
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
@@ -66,6 +71,7 @@ setappdata(handles.figure1,'cluster_names',cluster_names);
 setappdata(handles.figure1,'clustMembsCell',clustMembsCell);
 setappdata(handles.figure1,'cmap',cmap);
 
+%% Identifying the distance that defines microenvironment
 prompt={'Distnace (in pixels) that makes 2 cells adjacent'};
 dlg_title='Input';
 num_lines=1;
@@ -73,6 +79,7 @@ defaultans={'5'};
 x=inputdlg(prompt,dlg_title,num_lines,defaultans);
 number_of_pixels=str2num(x{:}); 
 
+%% Detect which are actually the neighbors of each cell
 for i=1:length(cell4)
     [cell4(i).neighlist,cell4(i).adjacency]=neighlist_creation(cell4(i).mask_cell,number_of_pixels);
 end
@@ -85,9 +92,12 @@ for i=1:numClust
     point2cluster(clustMembsCell{i})=i;
 end
 
+%% Find the clusters of each cell id
 for i=1:length(cell4)
     cell4(i).clusters=point2cluster(tsne_idx==i);
 end
+
+%% Assigns to a row of a matrix the neighbors of each cell
 ag_neigh=horzcat(cell4(:).neighlist);
 clusteri=zeros(length(ag_neigh),max(cellfun('size',ag_neigh,1)));
 for i=1:length(ag_neigh)
@@ -100,8 +110,7 @@ tmp=clusteri+1;
 tmp2=[0 point2cluster];
 cluster_of_neigh_cells=tmp2(tmp);
 
-
-
+%% Calculate the relative frequency of colocalization among the clusters 
 cooc=zeros(numClust);
 for i=1:numClust
     tmp=cluster_of_neigh_cells(point2cluster==i,:);
@@ -112,6 +121,7 @@ for i=1:numClust
     cooc(i,C)=a_counts;
 end
 
+%% Calculates a matrix where each row represents the relative frequency of a cell to colocalize with a cluster
 n_neigh=zeros(length(tsne_idx),numClust);
 for i=1:length(tsne_idx)
     tmp=cluster_of_neigh_cells(i,:);
@@ -136,15 +146,16 @@ setappdata(handles.figure1,'clusteri',clusteri);
 setappdata(handles.figure1,'cooc_overall',cooc);
 setappdata(handles.figure1,'norm_neigh_list',norm_neigh);
 
+%% The interaction heatmap is presented
 hfig=handles.uipanel1;
 Interaction_heatmap(hfig,new_cooc',(cell2mat(cellfun(@length,clustMembsCell,'UniformOutput',false))),handles,clusteri);
 
-
+%% The existance and significance of the motifs is calculated
 [z,fr,motifs,idx_motif_cells,out,motif_idx]=permutation2_test(clusteri,point2cluster'); 
 global val
 setappdata(handles.figure1,'First_val',val);
-    
-% hfig=figure('units','normalized','outerposition',[0 0 1 1],'Name','Motifs') ; 
+
+%% The illustration of the motifs is performed
 hfig=handles.uipanel2;
 Motif_Creation_CallBack( hfig,handles,z,fr,motifs,idx_motif_cells,motif_idx )
 setappdata(handles.figure1,'z',z);

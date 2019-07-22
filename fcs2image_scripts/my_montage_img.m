@@ -1,14 +1,18 @@
-function [new,markers] = my_montage_img( fnam,tiles,flag )
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+function [new,markers] = my_montage_img( fnam,tiles )
+
+% Load the cell segmentation mask(s) and concatenated according the tiles
+% variable
+%   - fnam: the filename of the cell segmentation masl
+%   - tiles: a matrix with the position of each image
 
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
+
 if nargin <3
     flag=0;  % for mask 
 end
+
 imgs=cell(length(fnam),1);
 for i=1:length(fnam)
-%     imgs{i}=imresize(imread([folder '\' fnam(i).name]),0.5,'bilinear');
     fname = [fnam(i).folder '\' fnam(i).name];
     info = imfinfo(fname);
     markers=cell(1,length(info));
@@ -19,17 +23,6 @@ for i=1:length(fnam)
             markers{j}=strtok(info(j).PageName,'(');
         catch
         end
-        
-%         counter{i}=unique(imageStack);
-%         if flag == 1 
-%             newimg=zeros(size(imageStack,1),size(imageStack,2));
-%             monad=unique(imageStack);
-%             for k=2:length(monad)
-%                 temp= imageStack == monad(k);
-%                 newimg= newimg + imerode(temp,ones(3));
-%             end
-%             imageStack=newimg;
-%         end
     end
 end
 
@@ -62,7 +55,6 @@ for i=1:size(tiles,1)
     end
     new=[new ; temp1];
 end
-% figure; imshow(new)
 
 end
 

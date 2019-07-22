@@ -1,5 +1,17 @@
 function Image_Callback_cont(hObject,event,norm_fac,handles)
 
+% Callabck upon the selection of a specific cell either in the tsne map or
+% in the samples when a specific feature of the cells is visualized with the color channel
+% used for the illustration of the data in the heatmap
+%   - hObject: inherited from the location that is selected from the user,
+%   either "Normalization", "Min/Max", "Actual values"
+%   -event: inherited from the callback also provides information on the
+%   kind of the selected functionality
+%   -norm_fac: value representing the offset that is provided to the cells
+%   of each sample
+%   - handles: variable with all the handlers and saved variables of the
+%   environment
+
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 global cell4

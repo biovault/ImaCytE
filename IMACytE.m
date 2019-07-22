@@ -1,4 +1,7 @@
 function varargout = IMACytE(varargin)
+
+%   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
+
 % IMACYTE MATLAB code for IMACytE.fig
 %      IMACYTE, by itself, creates a new IMACYTE or raises the existing
 %      singleton*.
@@ -23,7 +26,6 @@ function varargout = IMACytE(varargin)
 % Edit the above text to modify the response to help IMACytE
 
 % Last Modified by GUIDE v2.5 18-Jul-2019 17:22:55
-%   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -53,25 +55,15 @@ function IMACytE_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to IMACytE (see VARARGIN)
 
-% % Choose default command line output for IMACytE
-% handles.output = hObject;
-% 
-% % Update handles structure
-% guidata(hObject, handles);
+% clear variables that may are mis-initialized from previous run 
 clear global
 cla(handles.uipanel4)
 cla(handles.uipanel1)
 cla(handles.uipanel2)
 
-% delete(handles.Slider)
-% delete( handles.Edit_max)
-% delete( handles.Text_max)
-% delete(handles.Text_val)
-% delete(handles.Edit_val)
 
 setappdata(handles.figure1,'clustMembsCell',[])
 set(handles.Markerlist,'String',[]);
-set(handles.popup_Marker_selection,'Visible','off'); 
 
 set(handles.uipanel1,'Visible','off')
 set(handles.uipanel4,'Visible','off')
@@ -93,8 +85,6 @@ set(handles.figure1,'windowbuttonmotionfcn',[]);
 set( findall( gcf, '-property', 'Units' ), 'Units', 'Normalized' ) %in order to make window resizable
 
 
-
-
 % UIWAIT makes IMACytE wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
@@ -112,77 +102,6 @@ jFrame = get(handle(gcf),'JavaFrame');
 jFrame.setMaximized(true);  
 
 
-
-% --- Executes on slider movement.
-function slider1_Callback(hObject, eventdata, handles)
-% hObject    handle to slider1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
-
- 
-% --- Executes during object creation, after setting all properties.
-function slider1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-
-set( hObject, 'Min', 1, 'Max', 2, 'Value', 1.5 )
-
-% --- Executes on selection change in popup_Marker_selection.
-function popup_Marker_selection_Callback(hObject, eventdata, handles)
-% hObject    handle to popup_Marker_selection (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popup_Marker_selection contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popup_Marker_selection
-
-% contents = cellstr(get(hObject,'String'));
-value1=get(hObject,'Value');
-setappdata(handles.figure1,'M_sel',value1);
-
-if value1 == 1 
-    Update_Scatter_Tissue(handles)
-    heatmap_data(handles)
-    set(handles.figure1,'windowbuttonmotionfcn',@mousemove);
-
-% elseif value1 == 2
-%     numClust=unique(clustered);
-%     cluster2dataCell = cell(length(numClust),1);
-%     for cN = 1:length(numClust)
-%         myMembers = find(clustered == cN);
-%         cluster2dataCell{cN} = myMembers';
-%     end
-%     setappdata(handles.figure1,'clustMembsCell',cluster2dataCell);
-%     setappdata(handles.figure1,'cluster_names', cell(1,length(cluster2dataCell)))
-%     Update_Scatter_Tissue(handles)
-%     heatmap_data(handles)
-else
-   Update_Scatter_Tissue_Continious_var(handles); 
-end
-
-% --- Executes during object creation, after setting all properties.
-function popup_Marker_selection_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popup_Marker_selection (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
 % --- Executes on selection change in Markerlist.
 function Markerlist_Callback(hObject, eventdata, handles)
 % hObject    handle to Markerlist (see GCBO)
@@ -191,6 +110,8 @@ function Markerlist_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns Markerlist contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from Markerlist
+
+%% This callback saves the selected features which would be used afterwars for the tsne map computation
 
 selected_markers = get(hObject,'Value') ;
 setappdata(handles.figure1,'selected_markers',selected_markers);
@@ -214,18 +135,21 @@ function Compute_map_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% This callback implements the tsne creation map
+
 global n_data
 global tsne_map
 global cell4
 global tsne_idx
 tsne_idx=0;
 
-
+%% Select which samples you want to include in your analysis
 samples={cell4(:).name};
 selected_samples=listdlg('PromptString','Select samples to utilize:','ListString',samples);
 cell4=cell4(selected_samples);
-setappdata(handles.figure1,'selection_samples',[]);
+setappdata(handles.figure1,'selection_samples',[]); % you currently deselct all the illustrated images
 
+%% You redifine the tsne_idx and n_data in case less samples were selected
 prev=0;
 for i=1:length(cell4)    
     tsne_idx(prev+1:prev+length(cell4(i).idx))=i;
@@ -233,11 +157,12 @@ for i=1:length(cell4)
 end
 
 n_data=double(vertcat(cell4(:).data));
-
+%% Select which features to use for tsne map creation
 markerlist=getappdata(handles.figure1,'selected_markers');
 if isempty(markerlist); warndlg('Please select features for tSNE'); return; end
 used_data=n_data(:,markerlist);
 
+%% Select the tsne version you want to use
 tsne_choice=listdlg('PromptString','Select tSNE method to utilize:','ListString',{'tSNE', 'A-tSNE'},'SelectionMode','single');
 f = waitbar(0,'Please wait...');
 switch tsne_choice
@@ -256,6 +181,8 @@ switch tsne_choice
 end
 waitbar(1,f,'Finished');
 
+%% Create the scatter plot which gonna present the tsne map
+
 f_scatter=getappdata(handles.figure1,'Scatter_Figure');
 delete(get(f_scatter,'Children'));
 x=axes(f_scatter);
@@ -263,6 +190,7 @@ scatter(x,tsne_map(:,1),tsne_map(:,2),'filled');
 set(x,'Tag','Scatter_axes');
 set(x,'Position',[0.05 0.05 0.9 0.9]);
 
+%% Create the controls of the bandwidth range and min/max values they can get
 handles.Slider = uicontrol(handles.figure1,'style', 'Slider', 'Min', 0, 'Max', 20, 'Value',10, 'Units','normalized','position', [0 0.9 0.067 0.025 ], 'callback', {@ slider2_Callback, handles});
 handles.Text_val = uicontrol(handles.figure1,'Style','text','String','Value(#Clusters)','Units','normalized','position', [0.01 0.94 0.03 0.02 ]);
 % handles.Edit_val = uicontrol(handles.figure1,'Style','text','String',num2str(get(handles.Slider,'Value')),'Units','normalized','position', [0.025 0.925 0.015 0.02 ]);
@@ -300,6 +228,9 @@ function arcsin_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of arcsin
+
+%% This callback applies arcsin transformation to the data if has not been applied so far 
+
 global n_data
 global cell4
 
@@ -333,14 +264,16 @@ function Load_data_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-global cell4
-global tsne_map
-global n_data
-global tsne_idx
+%% This callback initializes the Loading the data process
+
+global cell4 % Each instance of cell4 is a different sample
+global tsne_map % represents the calculated tsne_map
+global n_data % represents the high dimensional data used for dimensionality reduction
+global tsne_idx % keeps track of the sample each cell belongs to
 tsne_idx=0;
 tsne_map=[];
 
-mode='Imaging'; %'Vectra'
+mode='Imaging'; 
 switch mode
     case 'Imaging'         
         cell4=[];
@@ -365,34 +298,33 @@ switch mode
 end
 
 markers=cell4(1).cell_markers;
-% for i=1:size(cell4(1).cell_markers,2)
-%     markers{i}=['Marker ' num2str(i)];
-% end
 setappdata(handles.figure1,'markers',markers);
 
+%% tsne_idx initialization
 n_data=double(vertcat(cell4(:).data));
 prev=0;
 for i=1:length(cell4)
     tsne_idx(prev+1:prev+length(cell4(i).idx))=i;
     prev=prev+ length(cell4(i).idx);
 end
-
+%%
 set(handles.Markerlist,'String',markers);
 set(handles.Markerlist,'Value',[]);
 
-f_scatter=handles.uipanel1;
+
+f_scatter=handles.uipanel1; % where scatter plot is gonna be illustrated in the tool
 setappdata(handles.figure1,'Scatter_Figure',f_scatter);
 
-f_image=handles.uipanel2;
+f_image=handles.uipanel2; % where images of samples are gonna be illustrated in the tool
 setappdata(handles.figure1,'Tissue_Figure',f_image);
-d = uicontextmenu(get(f_image,'Parent'));
+d = uicontextmenu(get(f_image,'Parent')); %contect menu for saving_as the samples
 Sava_as_interaction=uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, f_image, handles});
 set(f_image,'UIContextMenu',d);
 
-f_heatmap=handles.uipanel4;
+f_heatmap=handles.uipanel4; % where heatmap is gonna be illustrated in the tool
 setappdata(handles.figure1,'Heatmap_Figure',f_heatmap);
 
-
+%% Initializes the panels of the tool that depict the main figures
 gg=get(handles.uipanel2,'Children');
 delete(gg);
 set(handles.uipanel2,'Visible','on')
@@ -407,6 +339,8 @@ function Interaction_Analysis_Callback(hObject, eventdata, handles)
 % hObject    handle to Interaction_Analysis (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+%% This callback initializes the microenvironemnt exploration of the data which is performed from the Interactions_Motifs functions
 
 cmap=getappdata(handles.figure1,'cmap');
 clustMembsCell=getappdata(handles.figure1, 'clustMembsCell');
@@ -430,37 +364,31 @@ function slider2_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
+%% This callback is executed  any time the slider is moved
+
 global tsne_map
 global heatmap_selection
-% persistent previous
-    
-% pause(0.5);
-% bandwidth=get(hObject,'Value');
-% if isequal(bandwidth,previous)
-%     return
-% else
-%     previous=bandwidth;
-% end
+
 bandwidth=get(hObject,'Value');
 
-[~,~,clustMembsCell] = HGMeanShiftCluster(tsne_map',bandwidth,'gaussian');
+[~,~,clustMembsCell] = HGMeanShiftCluster(tsne_map',bandwidth,'gaussian'); % Clustering in the tsne map is perfromed
 
 handles.Edit_val = uicontrol(handles.figure1,'Style','text','String',[num2str(round(bandwidth,2)) '(' num2str(length(clustMembsCell)) ')' ],'Units','normalized','position', [0.02 0.925 0.03 0.02 ]);
 try
-    clustMembsCell(cellfun(@isempty,clustMembsCell))=[];
-    setappdata(handles.figure1, 'clustMembsCell',clustMembsCell);
+    clustMembsCell(cellfun(@isempty,clustMembsCell))=[]; 
+    setappdata(handles.figure1, 'clustMembsCell',clustMembsCell);  %Save the clusters
 
-    cluster_names=cell(1,length(clustMembsCell));
+    cluster_names=cell(1,length(clustMembsCell));  % Assign random names to clusters
     for i=1:length(clustMembsCell)
         cluster_names{i}=['Cluster' num2str(i)];
     end
     setappdata(handles.figure1,'cluster_names',cluster_names);
     
-    setappdata(handles.figure1,'selection_markers',1);
-    color_assignment( handles)
-    Update_Scatter(handles); 
-    Update_Tissue(handles); 
-    heatmap_data(handles)
+    setappdata(handles.figure1,'selection_markers',1);  %Chekc if a unique markers has been selected or the clustering one
+    color_assignment( handles)                          % Assign the colors for each cluster according to the alogrithm described in the paper
+    Update_Scatter(handles);                            % Update the colors of the tsne map
+    Update_Tissue(handles);                             % Update the colors of the tissue samples
+    heatmap_data(handles)                               % Updates the heatmap to correspond with the colors and points assigned to each cluster
     set(handles.uipanel4,'Visible','on')
 
     set(handles.figure1,'windowbuttonmotionfcn',@mousemove);
@@ -498,6 +426,7 @@ function Load_Clustering_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+%% This callback loads a saved clustering 
 global heatmap_selection
 global tsne_map
 
@@ -548,6 +477,8 @@ function Save_Clustering_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+%% This callback saves the current tsne map, colormap, cluster names and the markers used for the tsne creation
+
 global tsne_map
 global tsne_idx
 
@@ -567,7 +498,8 @@ function Save_Image_as_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
+% --unstable -- Saves the current version of the figures represented in the
+% tool
 saveas(gcf,'Screenshot.pdf');
 
 selection_markers=getappdata(handles.figure1,'selection_markers');
@@ -603,63 +535,12 @@ setappdata(handles.figure1,'Tissue_Figure',f_image);
 f_heatmap=handles.uipanel4;
 setappdata(handles.figure1,'Heatmap_Figure',f_heatmap);
 
-
-% --------------------------------------------------------------------
-function Batch_effect_Removal_Callback(hObject, eventdata, handles)
-% hObject    handle to Batch_effect_Removal (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-global cell4
-global tsne_map
-global tsne_idx
-
-tsne_idx=[];
-tsne_map=[];
-f = waitbar(0,'Please wait...');
-
-cell4=debatching(cell4);
-markers=cell4(1).cell_markers;
-setappdata(handles.figure1,'markers',markers);
-
-prev=0;
-for i=1:length(cell4)    
-    tsne_idx(prev+1:prev+length(cell4(i).idx))=i;
-    prev=prev+ length(cell4(i).idx);
-end
-
-waitbar(1,f,'Finished');
-set(handles.Markerlist,'String',markers);
-set(handles.Markerlist,'Value',[]);
-set(handles.uipanel1,'Visible','off')
-set(handles.uipanel4,'Visible','off')
-set(handles.arcsin,'Visible','off')
-
-delete(get(handles.uipanel2,'Children'));
-uicontrol(handles.uipanel2,'Style', 'pushbutton', 'String', 'Samples','Units','normalized','position', [0.1 0.96 0.2 0.025 ], 'callback', {@ Samples_Callback, handles});
-uicontrol(handles.uipanel2,'Style', 'pushbutton', 'String', 'Markers','Units','normalized','position', [0.7 0.96 0.2 0.025 ], 'callback', {@ Markers_Callback, handles});
-
-
 % --------------------------------------------------------------------
 function Untitled_1_Callback(hObject, eventdata, handles)
 % hObject    handle to Untitled_1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
-% --------------------------------------------------------------------
-function Scatter_overlay_Callback(hObject, eventdata, handles)
-% hObject    handle to Scatter_overlay (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-scatter_overlay(handles);
-
-% --------------------------------------------------------------------
-function cluster_per_sample_Callback(hObject, eventdata, handles)
-% hObject    handle to cluster_per_sample (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-cluster_per_sample(handles);
 
 % --------------------------------------------------------------------
 function Find_Selection_Callback(hObject, eventdata, handles)

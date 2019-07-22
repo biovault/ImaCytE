@@ -1,5 +1,19 @@
 function Motif_Threshold_Callback(source,~,hfig,handles,z,fr,motifs,idx_motif_cells,motif_idx,I2)
 
+% Callback function that according to the selected threshold it loads a subset of motifs
+%   - source: used as identifiers in order to understand what kind of
+%   selection/reordering should be arranged
+%   - hfig: identifier of the figure object whehre the motif will be created
+%   - handles: variable with all the handlers and saved variables of the
+%   environment
+%   - z : vector with the z-score value of each motif
+%   - fr: vector with the relative frequency regarding the cluster of a cell for each motif
+%   - motifs: a matrix which shows the clusters of the microenvironment that each motif represents
+%   - idx_motfi: a cell array that saves the idxes of the cells that
+%   are grouped under each motif.
+%   -motif_idx: a vector for the cluster of the cells of each motif
+%   - I2: vector representing the idx of motifs that should be selected
+
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 persistent previous

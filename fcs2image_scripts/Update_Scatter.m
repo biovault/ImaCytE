@@ -1,5 +1,9 @@
 function Update_Scatter(handles)
 
+% Updates the colors of the cells in the scatter plot according to the assigned cluster
+%   - handles: variable with all the handlers and saved variables of the
+%   environment
+
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 global tsne_map

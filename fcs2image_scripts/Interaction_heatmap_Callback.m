@@ -1,5 +1,16 @@
 function Interaction_heatmap_Callback( source,~,sizes,handles,clusteri )
 
+% Callback upon selection of the normalization type of the interaction heatmap
+%   - source: inherited from the varaible that is selected from the user,
+%   either "Normalization by row", "Normalization by column", "Normalization excluding diagonal"
+%   - sizes: The number of cells that each cluster has
+%   - handles: variable with all the handlers and saved variables of the
+%   environment
+%   - clusteri: matrix wehre each row represent the cell ids of the cells that exist
+%   in their neihgborhood
+
+%   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
+
 cooc=getappdata(handles.figure1,'cooc_overall');
 f=handles.uipanel1;
 switch source.Value

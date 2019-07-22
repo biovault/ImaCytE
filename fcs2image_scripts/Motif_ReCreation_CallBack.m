@@ -1,5 +1,17 @@
 function  Motif_ReCreation_CallBack( hfig,handles,z,fr,motifs,idx_motif_cells,motif_idx,I)
 
+% Callback function that loads the motifs created from Motif_Creation_Callback
+%   - hfig: identifier of the figure object whehre the motif will be created
+%   - handles: variable with all the handlers and saved variables of the
+%   environment
+%   - z : vector with the z-score value of each motif
+%   - fr: vector with the relative frequency regarding the cluster of a cell for each motif
+%   - motifs: a matrix which shows the clusters of the microenvironment that each motif represents
+%   - idx_motfi: a cell array that saves the idxes of the cells that
+%   are grouped under each motif.
+%   -motif_idx: a vector for the cluster of the cells of each motif
+%   - I: vector representing the idx of motifs that should be loaded
+
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 global val
@@ -30,9 +42,9 @@ container.BackgroundColor=[1 1 1];
 set(jSlider, 'MajorTickSpacing',5, 'PaintLabels',true , 'PaintTicks', true );
 hjSlider = handle(jSlider, 'CallbackProperties');
 set(hjSlider, 'StateChangedCallback', {@Motif_Threshold_Callback,hfig,handles,z,fr,motifs,idx_motif_cells,motif_idx,I});
-
-%%
 popup2 = uicontrol( hfig,'Style', 'text','Units','normalized','Position',[0.91 0.85 0.09 0.05],'String','Motif threshold');
+
+%% Reload of the motifs that have already been created from Motif_Creation_Callback
 for i=1:ceil((size(motifs,1)+1)/num_subplots)
     tab{i}=uitab(tabgp,'Title',num2str(i));
 %     set(tab{i},'BackgroundColor',[1 1 1]);

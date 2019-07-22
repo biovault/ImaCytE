@@ -1,5 +1,10 @@
 function heatmap_data_Callback(source,~,ax_,fin_mat)
 
+% Callback upon selection of the normalization process that is going to be
+% used for the illustration of the data in the heatmap
+%   - source: inherited from the variable that is selected from the user,
+%   either "Normalization", "Min/Max", "Actual values"
+
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
    val = source.Value; 

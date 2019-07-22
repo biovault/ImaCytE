@@ -1,5 +1,9 @@
 function Samples_Callback(~, ~, handles)
 
+% Callback function that presents the samples that the user can select for
+% visualization
+%   - handles: variable with all the handlers and saved variables of the
+
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 global cell4

@@ -1,5 +1,11 @@
 function [z_overall,fr_overall,motifs_overall,idx_cells_overall,out_overall,idx_motifs_overall] =permutation2_test(clusteri,cluster,num_clusters)
 
+% The detection of the motifs and their signficance using a permutation
+% test is performed.
+%   - clusteri: a matrix where each row represents a cell and the columns
+%   represent the cell_id of the cells that neighboring this cell
+%   - cluster: the cluster that each cell belongs to
+%   - num_clusters: the number of unique clusters
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 global val

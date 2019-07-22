@@ -1,5 +1,10 @@
 function mousemove_interaction(src,~,handles)
 
+% Callback function initialized upon hovering in the interaction heatmap or
+% the motifs exist in the microenvironment exploration
+%   - src: identifier of the location on the screnn that the mouse pointer is
+%   - handles: variable with all the handlers and saved variables of the
+
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 persistent pre_point_hor
@@ -16,16 +21,13 @@ size_axes=getappdata(handles.figure1,'cell_sizes');
 f=src;
 obj=hittest(f);
 
-if isequal(obj.Tag,'H_i')
+if isequal(obj.Tag,'H_i')  % Functionality performed upon hovering on the interaction heatmap
     a=get(obj,'parent');
     point=get(a,'currentpoint');
     point2=round(point(1,1:2));  
     hi_points=getappdata(handles.figure1,'points_hi');
 
     if ~isequal(point2,[pre_point_hor pre_point_ver])
-%         h_i_per_cell=getappdata(handles.figure1,'mat_interactions');
-%         xoffset=0.05;
-%         yoffset=0.02;
         delete(rect); %delete last tool tip
         delete(text_); %delete last tool tip
         set(hor_axes(pre_point_hor),'Linewidth',1)
@@ -35,9 +37,8 @@ if isequal(obj.Tag,'H_i')
         set(hor_axes(point2(1)),'Linewidth',4)
         pre_point_hor=point2(1);
         pre_point_ver=point2(2);
-%         Show_Tissue_Selection(h_i_per_cell{point2(1,1),point2(1,2)},handles);
     end
-elseif find(obj ==ver_axes, 1)
+elseif find(obj ==ver_axes, 1) % Functionality performed upon hovering on boxs on the left of interaction heatmap
     num=find(obj == ver_axes);
     if ~isequal(pre_point_ver,num)
         h_i=getappdata(handles.figure1,'h_i');
@@ -52,11 +53,8 @@ elseif find(obj ==ver_axes, 1)
         rect=rectangle(a,'Position',[0 num-0.5 size(h_i.CData,2)+0.5 1],'EdgeColor','r');
         set(rect,'Tag','Rect');
         pre_point_ver=num;
-%     bwmask=ones(length(ver_axes))*0.5;
-%     bwmask(pre_point_ver,:)=1;
-%     set(h_i,'AlphaData',bwmask);
     end
-elseif find(obj ==hor_axes, 1)
+elseif find(obj ==hor_axes, 1) % Functionality performed upon hovering on the interaction heatmap
     num=find(obj == hor_axes);
     if ~isequal(pre_point_hor,num)
         h_i=getappdata(handles.figure1,'h_i');
@@ -72,13 +70,8 @@ elseif find(obj ==hor_axes, 1)
         set(rect,'Tag','Rect');
     
         pre_point_hor=num;
-%     bwmask=ones(length(hor_axes))*0.1;
-%     bwmask(:,pre_point)=1;
-%     set(h_i,'AlphaData',bwmask*0.7);
-%     Show_Tissue_Selection(clustMembsCell{pre_point},handles);
     end
-elseif find(obj == size_axes,1)
-%     if ~isequal(pre_point,find(obj == size_axes))
+elseif find(obj == size_axes,1) % Functionality performed upon hovering on the bar chart with the cluster sizes 
     pre_point=find(obj == size_axes) ;
         delete(rect); %delete last tool tip
         delete(text_); %delete last tool tip
@@ -86,7 +79,7 @@ elseif find(obj == size_axes,1)
             'backgroundcolor',[1 1 1],'tag','mytooltip','edgecolor',[1 1 1],...
             'hittest','off','Fontsize',8);   
 %     end
-elseif find( get(obj,'Parent') == motif_axes)
+elseif find( get(obj,'Parent') == motif_axes) % Functionality performed upon hovering on the motifs 
     temp=get(obj,'Tag');
     ax=get(obj,'Parent');
     L=getappdata(handles.figure1,'t_idx_motif_cells');
@@ -136,11 +129,8 @@ elseif find( get(obj,'Parent') == motif_axes)
     end
 else
    
-%    delete(findobj(f,'tag','mytooltip')); %delete last tool tip 
-   delete(text_)
-%  delete(findobj(f,'tag','Rect')); %delete last tool tip
+    delete(text_)
     delete(rect)
-
     try 
         set(hor_axes(pre_point_hor),'Linewidth',1)
         set(ver_axes(pre_point_ver),'LineWidth',1)
