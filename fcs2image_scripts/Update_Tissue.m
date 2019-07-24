@@ -68,7 +68,7 @@ for i=selection_samples
     set(tissue,'YColor','none');
     
     set(fg,'ButtonDown',{@Image_Callback,norm_fac,point2cluster,handles});
-    imwrite(fg.CData,  [  '\' cell4(i).name '_Clustered_data'  '.png'])
+%     imwrite(fg.CData,  [  '\' cell4(i).name '_Clustered_data'  '.png'])
 
 %% Add a contect menu in order to be possible to brush image areas
     try  

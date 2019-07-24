@@ -40,7 +40,7 @@ for i=selection_samples
     else
         set(mysum, 'AlphaData', bwmask); 
     end
-        imwrite(mysum.CData,  [  '\' cell4(i).name '_Clustered_data'  '.png'], 'Alpha',bwmask)
+%         imwrite(mysum.CData,  [  '\' cell4(i).name '_Clustered_data'  '.png'], 'Alpha',bwmask)
 
 end
 
