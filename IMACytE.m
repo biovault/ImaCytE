@@ -318,7 +318,7 @@ setappdata(handles.figure1,'Scatter_Figure',f_scatter);
 f_image=handles.uipanel2; % where images of samples are gonna be illustrated in the tool
 setappdata(handles.figure1,'Tissue_Figure',f_image);
 d = uicontextmenu(get(f_image,'Parent')); %contect menu for saving_as the samples
-Sava_as_interaction=uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, f_image, handles});
+Sava_as_interaction=uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, f_image});
 set(f_image,'UIContextMenu',d);
 
 f_heatmap=handles.uipanel4; % where heatmap is gonna be illustrated in the tool

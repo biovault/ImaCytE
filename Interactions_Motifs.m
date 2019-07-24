@@ -171,9 +171,9 @@ setappdata(handles.figure1,'selection_samples',[1:length(cell4)]);
 setappdata(handles.figure1,'selection_markers',1);
 setappdata(handles.figure1,'Tissue_Figure',hfig);
 Update_Tissue(handles)
-d = uicontextmenu(get(f_image,'Parent'));
-Sava_as_interaction=uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, f_image, handles});
-set(f_image,'UIContextMenu',d);
+d = uicontextmenu(get(hfig,'Parent'));
+Sava_as_interaction=uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, hfig});
+set(hfig,'UIContextMenu',d);
         
 set(handles.figure1,'windowbuttonmotionfcn',{@mousemove_interaction,handles});
 

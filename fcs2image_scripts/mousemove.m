@@ -13,7 +13,7 @@ transaparency=0.7;
 if isequal(obj.Tag,'h_hd')
     a=get(obj,'parent');
     point=get(a,'currentpoint');
-    point2=round([point(1,1) point(1,2)]);   
+    point2=round([point(1,1) point(1,2)]) ;
     if ~point2(1)
         point2(1)=1;
     end

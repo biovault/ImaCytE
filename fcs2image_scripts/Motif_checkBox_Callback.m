@@ -14,6 +14,7 @@
 persistent chk
 persistent points
 
+set(handles.figure1,'windowbuttonmotionfcn',{@mousemove_interaction,handles});
 
 if isempty(chk)
     chk = 1;
@@ -39,15 +40,15 @@ if isempty(chk)
 
         hfig=figure('Name',['2nd level of Motif Nr.' num2str(motif_num)]);
         for i=1:length(unique(T))
-            idx_motif_cells{i}=idx_motif_cells(T==i);
+            idx_motif_cells_2{i}=idx_motif_cells(T==i);
             ax1(i)=subplot(3,3,i,axes(hfig));
-            fr(i)=length(idx_motif_cells{i})/length(T);
+            fr(i)=length(idx_motif_cells_2{i})/length(T);
             [handlers{i},mean_val{i},std_val{i}]=my_pie(handles,norm_neigh(T == i,:),motif_idx,fr(i),ax1(i));
             set(handlers{i},'Tag',num2str(i));
-            set(handlers{i},'ButtonDownFcn',{@Motif_callback,idx_motif_cells{i},handles});
+            set(handlers{i},'ButtonDownFcn',{@Motif_callback,idx_motif_cells_2{i},handles});
         end
         chk=[];
-        set(hfig,'windowbuttonmotionfcn',{@mousemove,idx_motif_cells,handles,handlers,mean_val,std_val,fr,ax1});
+        set(hfig,'windowbuttonmotionfcn',{@mousemove,idx_motif_cells_2,handles,handlers,mean_val,std_val,fr,ax1});
     end
 else
     chk = [];

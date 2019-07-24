@@ -1,4 +1,4 @@
-function [new,markers] = my_montage_img( fnam,tiles )
+function [new,markers] = my_montage_img( fnam,tiles,flag )
 
 % Load the cell segmentation mask(s) and concatenated according the tiles
 % variable
