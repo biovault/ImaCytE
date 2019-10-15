@@ -1,4 +1,4 @@
-function Image_Context_Menu(source,~,num,handles,point2cluster)
+function Image_Context_Menu(source,~,num,handles)
 
 % Callback upon selection of of a brushing an area in an Image 
 %   - source: inherited from the varaible that is selected from the user,
@@ -13,25 +13,13 @@ function Image_Context_Menu(source,~,num,handles,point2cluster)
 
     global cell4;
     global tsne_idx;
-    global tsne_map;
     global p_
     global heatmap_selection
-    
+
     value1=getappdata(handles.figure1,'selection_markers');
     value1=value1(1);
     switch source.Label
-        case 'P.Select'
-                axes(handles.axes6)
-                zoom off;
-                pan off;
-                rotate3d off;
-                datacursormode off;
-                if value1<2
-                    Update_Scatter_Tissue(cell4,tsne_map,handles,tsne_idx,false);
-                else
-                    Update_Scatter_Tissue_Continious_var(cell4,tsne_map,handles); 
-                end
-        case 'P.Brush'
+        case 'Brush'
                 zoom off;
                 pan off;
                 rotate3d off;
@@ -50,6 +38,11 @@ function Image_Context_Menu(source,~,num,handles,point2cluster)
                    p=p+norm_fac;
                    p_=setxor(p_,p);
                    if value1<2
+                       clustMembsCell=getappdata(handles.figure1, 'clustMembsCell');
+                       numClust=length(clustMembsCell);
+                       for i=1:numClust
+                            point2cluster(clustMembsCell{i})=i;
+                        end
                         heatmap_selection=[ heatmap_selection unique(point2cluster(p_))];
                         Show_Heatmap_Selection(heatmap_selection);
                         Show_Tissue_Selection(p_,handles);

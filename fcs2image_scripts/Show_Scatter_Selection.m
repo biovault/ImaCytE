@@ -11,10 +11,10 @@ function Show_Scatter_Selection(list_of_cells,handles)
 global tsne_map
 
 f=findobj('Tag','Scatter_axes');
-
+f=f(end);
 cmap=getappdata(handles.figure1,'cmap');
-clustMembsCell=getappdata(handles.figure1, 'clustMembsCell');
 
+clustMembsCell=getappdata(handles.figure1, 'clustMembsCell');
 numClust=length(clustMembsCell);
 for i=1:numClust
     point2cluster(clustMembsCell{i})=i;

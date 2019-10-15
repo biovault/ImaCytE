@@ -164,6 +164,7 @@ used_data=n_data(:,markerlist);
 
 %% Select the tsne version you want to use
 tsne_choice=listdlg('PromptString','Select tSNE method to utilize:','ListString',{'tSNE', 'A-tSNE'},'SelectionMode','single');
+% tsne_choice=1;
 f = waitbar(0,'Please wait...');
 switch tsne_choice
     case 1
@@ -313,16 +314,26 @@ set(handles.Markerlist,'Value',[]);
 
 
 f_scatter=handles.uipanel1; % where scatter plot is gonna be illustrated in the tool
+set(f_scatter,'Tag','tsne_plot');
 setappdata(handles.figure1,'Scatter_Figure',f_scatter);
+d = uicontextmenu(get(f_scatter,'Parent')); %contect menu for saving_as the samples
+Sava_as_interaction1=uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, f_scatter});
+set(f_scatter,'UIContextMenu',d);
 
 f_image=handles.uipanel2; % where images of samples are gonna be illustrated in the tool
+set(f_image,'Tag','Images_panel');
 setappdata(handles.figure1,'Tissue_Figure',f_image);
 d = uicontextmenu(get(f_image,'Parent')); %contect menu for saving_as the samples
-Sava_as_interaction=uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, f_image});
+Sava_as_interaction2=uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, f_image});
 set(f_image,'UIContextMenu',d);
 
 f_heatmap=handles.uipanel4; % where heatmap is gonna be illustrated in the tool
+set(f_heatmap,'Tag','heatmap')
 setappdata(handles.figure1,'Heatmap_Figure',f_heatmap);
+d = uicontextmenu(get(f_heatmap,'Parent')); %contect menu for saving_as the samples
+Sava_as_interaction3=uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, f_heatmap});
+set(f_heatmap,'UIContextMenu',d);
+
 
 %% Initializes the panels of the tool that depict the main figures
 gg=get(handles.uipanel2,'Children');
@@ -368,6 +379,7 @@ function slider2_Callback(hObject, eventdata, handles)
 
 global tsne_map
 global heatmap_selection
+
 
 bandwidth=get(hObject,'Value');
 
@@ -441,13 +453,19 @@ clustMembsCell=load([path '\' file]);
 old_clustMembsCell=getappdata(handles.figure1, 'clustMembsCell');
 
 cmap=clustMembsCell.cmap;
+
 try
     markerlist=clustMembsCell.markerlist;
     setappdata(handles.figure1,'selected_markers',markerlist);
 catch
 end
-cluster_names=clustMembsCell.cluster_names;
-tsne_map=clustMembsCell.t_scatter;
+try
+    cluster_names=clustMembsCell.cluster_names;
+    tsne_map=clustMembsCell.t_scatter;
+    setappdata(handles.figure1,'cluster_names',cluster_names);
+
+catch
+end
 try 
     T=clustMembsCell.T;
     setappdata(handles.figure1,'h_cluster',T);
@@ -456,7 +474,25 @@ end
 clustMembsCell=clustMembsCell.clustMembsCell;
 %if ~isequal(length([clustMembsCell{:}]),length([old_clustMembsCell{:}]));     errordlg('Different number of cells loading than already loaded smaples') ; end
 
-setappdata(handles.figure1,'cluster_names',cluster_names);
+global n_data
+markers=getappdata(handles.figure1,'markers');
+markers=horzcat('Clustered Data',markers);
+% selection_markers=ListBox_selection(markers);
+[markerlist,~] = listdlg('PromptString','Select markers to utilize:','ListString',markers);
+
+setappdata(handles.figure1,'selected_markers',markerlist);      %Load markers in order to cluster the centroids of the clusters according to their high dimensional signature
+numClust=length(clustMembsCell);
+fin_mat=zeros(length(markerlist),numClust);
+for i=1:numClust
+    temp=median(n_data(clustMembsCell{i},markerlist))';
+    fin_mat(:,i)=temp;
+end
+
+n=my_normalize(fin_mat,'row'); %standardize per row
+[~,leafOrder]=dendro_calculator(n);
+clustMembsCell=clustMembsCell(leafOrder);
+cmap=cmap(leafOrder,:);
+
 setappdata(handles.figure1, 'clustMembsCell',clustMembsCell);
 setappdata(handles.figure1, 'cmap',cmap);
     
@@ -481,6 +517,7 @@ function Save_Clustering_Callback(hObject, eventdata, handles)
 
 global tsne_map
 global tsne_idx
+global cell4
 
 markerlist=getappdata(handles.figure1,'selected_markers');
 cluster_names=getappdata(handles.figure1, 'cluster_names');
@@ -490,8 +527,20 @@ t_scatter=tsne_map;
 T=getappdata(handles.figure1,'h_cluster');
 tsne_idx=tsne_idx;
 
-uisave({'clustMembsCell','cmap','t_scatter','cluster_names','T','tsne_idx','markerlist'},'clustered_data.mat')
+% uisave({'clustMembsCell','cmap','t_scatter','cluster_names','T','tsne_idx','markerlist'},'clustered_data.mat')
 
+numClust=length(clustMembsCell);
+for i=1:numClust
+    point2cluster(clustMembsCell{i})=i;
+end
+r=uigetdir;
+for i=1:length(cell4)
+    t_idx=tsne_idx ==i;
+    temo=point2cluster(t_idx);
+    temo=[temo' ];
+    temp_markers={ 'Phenotype' };
+    my_csvwrite([r '\' cell4(i).name '_phenotypes.csv'],temo,temp_markers);
+end
 % --------------------------------------------------------------------
 function Save_Image_as_Callback(hObject, eventdata, handles)
 % hObject    handle to Save_Image_as (see GCBO)
@@ -596,12 +645,15 @@ if ~isequal(count,length(tsne_idx))
     errordlg('Not all cells have an assigned cluster')
 end
 
-setappdata(handles.figure1, 'clustMembsCell',clustMembsCell);
-
 cluster_names=cell(1,length(clustMembsCell));
 for i=1:length(clustMembsCell)
     cluster_names{i}=['Cluster' num2str(i)];
 end
+
+clustMembsCell{end+1}=setdiff([1:length(tsne_idx)],vertcat(clustMembsCell{:}));
+setappdata(handles.figure1, 'clustMembsCell',clustMembsCell);
+
+cluster_names{end+1}='Unclustered cells';
 setappdata(handles.figure1,'cluster_names',cluster_names);
     
 setappdata(handles.figure1,'selection_markers',1);

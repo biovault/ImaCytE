@@ -74,8 +74,7 @@ for i=selection_samples
     try  
         d = uicontextmenu(get(f_images,'Parent'));
         Interact_per_point = uimenu('Parent',d,'Label','Point');
-        uimenu('Parent',Interact_per_point,'Label','P.Select','Callback',{@Image_Context_Menu,i,handles,point2cluster});
-        uimenu('Parent',Interact_per_point,'Label','P.Brush','Callback',{@Image_Context_Menu,i,handles,point2cluster});
+        uimenu('Parent',Interact_per_point,'Label','Brush','Callback',{@Image_Context_Menu,i,handles});
         set(fg,'UIContextMenu',d);
         title(tissue,[cell4(i).name],'Interpreter','None');
         setappdata(handles.figure1,[ 'Tissue_axes' num2str(i)],tissue); %we save each axes different in order to retrieve it also seperately    

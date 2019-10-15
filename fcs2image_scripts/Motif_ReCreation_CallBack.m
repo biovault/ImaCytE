@@ -48,10 +48,18 @@ popup2 = uicontrol( hfig,'Style', 'text','Units','normalized','Position',[0.91 0
 for i=1:ceil((size(motifs,1)+1)/num_subplots)
     tab{i}=uitab(tabgp,'Title',num2str(i));
 %     set(tab{i},'BackgroundColor',[1 1 1]);
+    d = uicontextmenu(get(hfig,'parent'));
+    uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, hfig});
+    set(tab{i},'UIContextMenu',d);
 end
 
 set(popup,'Units','normalized')
 set(popup,'Position',[0.005 0.86 0.07 0.05]);
+try 
+    z_new=mat2gray(z,[min(z) max(z)]);
+catch
+    
+end
 for i=1:length(idx_motif_cells)
         ax_=axes(tab{ceil(i/num_subplots)});
         if mod(i,num_subplots) == 0
@@ -63,10 +71,10 @@ for i=1:length(idx_motif_cells)
         handlers{i}=handlers_origin{I(i)};
         mean_val{i}=mean_val_origin{I(i)};
         std_val{i}=std_val_origin{I(i)};
-       
+        caxis(ax(i),[0 1]);
+        set(handlers{i}(2),'CData',z_new(i));
         temp=fliplr(handlers{i});
         set(temp,'Parent',ax(i));
-%         caxis([0 1]);
 
         set(handlers{i},'Tag',num2str(i));
         set(handlers{i},'ButtonDownFcn',{@Motif_checkBox_Callback,idx_motif_cells,handles,motif_idx(i)});

@@ -49,7 +49,6 @@ if isempty(chk)
                     'hittest','off','Fontsize',8); 
             p_=setxor(p_,out);
             heatmap_selection=setxor(heatmap_selection,point2cluster(p_));
-            colormap(viridis);
         end
     end
 else
