@@ -35,6 +35,7 @@ for i=1:numClust
 end
 
 n=my_normalize(fin_mat,'row'); %standardize per row
+% n=my_rescale(fin_mat,'row'); %standardize per row
 
 %% Dendrogram calculation
 ax_dendr=axes(f);
@@ -93,11 +94,10 @@ selection_markers=getappdata(handles.figure1,'selection_markers');
 if rt.Button ~=1; return; end
 a=get(hObject,'Parent');
 a=get(a,'currentpoint');
-a=floor(a(1,1))+1;
-if a>size(hObject.CData,2)
-    a=size(hObject.CData,2);
+a=round([a(1,1)]) ;
+if ~a(1)
+    a(1)=1;
 end
-
 heatmap_selection=setxor(heatmap_selection,a);
 if isempty(chk) && ~isempty(heatmap_selection)
     chk = 1;

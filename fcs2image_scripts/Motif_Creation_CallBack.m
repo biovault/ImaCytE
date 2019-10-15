@@ -40,7 +40,10 @@ popup2 = uicontrol( hfig,'Style', 'text','Units','normalized','Position',[0.91 0
 %% Create the motifs 
 for i=1:ceil((size(motifs,1)+1)/num_subplots)
     tab{i}=uitab(tabgp,'Title',num2str(i));
-    set(tab{i},'BackgroundColor',[1 1 1]);
+%     set(tab{i},'BackgroundColor',[1 1 1]);
+    d = uicontextmenu(get(hfig,'parent'));
+    uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, hfig});
+    set(tab{i},'UIContextMenu',d);
 end
 
 set(popup,'Units','normalized')

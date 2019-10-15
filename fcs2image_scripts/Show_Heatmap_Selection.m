@@ -7,6 +7,7 @@ function Show_Heatmap_Selection(selection)
 
     transparency=0.7;
     a=findobj('Tag','h_hd');
+    a=a(end);
     w=get(a,'CData');
     if  isempty(selection)
         bwmask=1;

@@ -60,6 +60,7 @@ function Interactions_Motifs_OpeningFcn(hObject, eventdata, handles, varargin)
 
 global cell4
 global tsne_idx
+
 clustMembsCell=varargin{1};
 cmap=varargin{2};
 value1=varargin{3};
@@ -147,33 +148,43 @@ setappdata(handles.figure1,'cooc_overall',cooc);
 setappdata(handles.figure1,'norm_neigh_list',norm_neigh);
 
 %% The interaction heatmap is presented
-hfig=handles.uipanel1;
-Interaction_heatmap(hfig,new_cooc',(cell2mat(cellfun(@length,clustMembsCell,'UniformOutput',false))),handles,clusteri);
+hfig1=handles.uipanel1;
+set(hfig1,'Tag','heatmap_int')
+Interaction_heatmap(hfig1,new_cooc',(cell2mat(cellfun(@length,clustMembsCell,'UniformOutput',false))),handles,clusteri);
 
+d = uicontextmenu(get(hfig1,'Parent'));
+uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, hfig1});
+set(hfig1,'UIContextMenu',d);
 %% The existance and significance of the motifs is calculated
 [z,fr,motifs,idx_motif_cells,out,motif_idx]=permutation2_test(clusteri,point2cluster'); 
 global val
 setappdata(handles.figure1,'First_val',val);
 
 %% The illustration of the motifs is performed
-hfig=handles.uipanel2;
-Motif_Creation_CallBack( hfig,handles,z,fr,motifs,idx_motif_cells,motif_idx )
+hfig2=handles.uipanel2;
+set(hfig2,'Tag','Motifs')
+Motif_Creation_CallBack( hfig2,handles,z,fr,motifs,idx_motif_cells,motif_idx )
 setappdata(handles.figure1,'z',z);
 setappdata(handles.figure1,'fr',fr);
 setappdata(handles.figure1,'motifs',motifs);
 setappdata(handles.figure1,'idx_motif_cells',idx_motif_cells);
 setappdata(handles.figure1,'motif_idx',motif_idx);
-setappdata(handles.figure1,'hfig',hfig);
+setappdata(handles.figure1,'hfig',hfig2);
 
+d = uicontextmenu(get(hfig2,'Parent'));
+uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, hfig2});
+set(hfig2,'UIContextMenu',d);
 
-hfig=handles.uipanel3;
+hfig3=handles.uipanel3;
+set(hfig3,'Tag','Images_panel');
 setappdata(handles.figure1,'selection_samples',[1:length(cell4)]);
 setappdata(handles.figure1,'selection_markers',1);
-setappdata(handles.figure1,'Tissue_Figure',hfig);
+setappdata(handles.figure1,'Tissue_Figure',hfig3);
 Update_Tissue(handles)
-d = uicontextmenu(get(hfig,'Parent'));
-Sava_as_interaction=uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, hfig});
-set(hfig,'UIContextMenu',d);
+
+d = uicontextmenu(get(hfig3,'Parent'));
+uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, hfig3});
+set(hfig3,'UIContextMenu',d);
         
 set(handles.figure1,'windowbuttonmotionfcn',{@mousemove_interaction,handles});
 
