@@ -8,8 +8,7 @@ It is focused on the identification of the cell phenotypes that exist in the sam
 ### Cite
 If you use ImaCytE within the scope of a scientific article you must cite the original publication:
 
-Somarakis A., van Unen V., Koning F., Lelieveldt B., and Höllt T., __ImaCytE: Visual Exploration of Cellular Microenvironments for Imaging Mass Cytometry Data__, _IEEE Transactions on Visualization and Computer Graphics_, accepted for publication, 2019
-
+Somarakis A., van Unen V., Koning F., Lelieveldt B., and Höllt T., __ImaCytE: Visual Exploration of Cellular Microenvironments for Imaging Mass Cytometry Data__, _IEEE Transactions on Visualization and Computer Graphics_, accepted for publication, 2019. [DOI: 10.1109/TVCG.2019.2931299](https://dx.doi.org/10.1109/TVCG.2019.2931299)
 ## Getting started
 
 In case you have a Matlab 2016b or newer you can run ImaCytE from source code. 
