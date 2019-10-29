@@ -36,7 +36,7 @@ In each subfolder you must contain a mutli-**".tiff"** file with all markers as 
 
 [![video](https://www.lcbc.nl/assets/papers/2019_imacyte/2019_imacyte.png)](https://vimeo.com/367029751)
 
-Video describing main functionalities of ImaCytE through the case study described in the paper.
+[Video](https://vimeo.com/367029751)  describing main functionalities of ImaCytE through the case study described in the paper.
 
 ### Contact
 
