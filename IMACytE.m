@@ -379,7 +379,7 @@ function slider2_Callback(hObject, eventdata, handles)
 
 global tsne_map
 global heatmap_selection
-
+global cell4
 
 bandwidth=get(hObject,'Value');
 
