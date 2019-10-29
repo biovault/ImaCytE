@@ -1,0 +1,4 @@
+# no .out files
+*.out
+# no .asv files
+*.asv
