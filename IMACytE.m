@@ -164,7 +164,7 @@ if isempty(markerlist); warndlg('Please select features for tSNE'); return; end
 used_data=n_data(:,markerlist);
 
 %% Select the tsne version you want to use
-tsne_choice=listdlg('PromptString','Select tSNE method to utilize:','ListString',{'tSNE', 'Texture A-tSNE'},'SelectionMode','single');
+tsne_choice=listdlg('PromptString','Select tSNE method to utilize:','ListString',{'tSNE', 'A-tSNE','Texture A-tSNE'},'SelectionMode','single');
 % tsne_choice=1;
 f = waitbar(0,'Please wait...');
 switch tsne_choice
@@ -176,10 +176,16 @@ switch tsne_choice
         end
     case 2
         try
+            tsne_map=fast_atsne(my_normalize(used_data,'column'));
+        catch ME
+            rethrow(ME)
+        end
+    case 3
+        try
             tsne_map=my_texture_tsne(my_normalize(used_data,'column'));
         catch ME
             rethrow(ME)
-        end       
+        end  
 end
 waitbar(1,f,'Finished');
 
