@@ -1,4 +1,4 @@
-function Save_as_Context_Menu(~,~,f_images)
+function Save_as_Context_Menu(~,~,f_images,handles)
 
 % Callback function that saves all the images are illustrated in the image
 % viewer of the tool
@@ -53,10 +53,14 @@ switch temp_1
         [file,name,~] = uiputfile(img_types,'heatmap');
         saveas(f,[name '\' file]);
     case 'Motifs'
+        z=getappdata(handles.figure1,'z');
         f=figure('Color',[1 1 1],'units','normalized','outerposition',[0 0 1 1],'Visible','off');
+        caxis([min(z) max(z)])
+        colormap(flipud(gray))
         temp=get(f_images,'Children');
         copyobj(temp,f);
         [file,name,~] = uiputfile(img_types,'motifs');
         saveas(f,[name '\' file]);
+        
 end
 end

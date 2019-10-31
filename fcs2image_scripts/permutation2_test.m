@@ -46,7 +46,8 @@ Phenograph_Vector_index =[0;Phenograph_Vector];
 Phenograph_Neighor_Matrix = Phenograph_Vector_index(Neighbor_Matrix_index);
 
 % Calculate all possible interactions
-Available_Labels = unique(Phenograph_Vector);
+% Available_Labels = unique(Phenograph_Vector);
+Available_Labels = 1:max(Phenograph_Vector);
 
 
 gr2=zeros(length(clusteri),length(Available_Labels));
@@ -87,7 +88,7 @@ end
 fr=out(:,2)/length(x);
 tempo=out(:,1);
 temp_all=cell(1,permutations);
-parfor p=1:permutations
+for p=1:permutations
     % Generate matrix for permutation
     Phenograph_Vector_perm = Phenograph_Vector(randperm(length(Phenograph_Vector)));
     Phenograph_Vector_index_perm = [0;Phenograph_Vector_perm];

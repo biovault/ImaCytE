@@ -38,11 +38,7 @@ function Image_Context_Menu(source,~,num,handles)
                    p=p+norm_fac;
                    p_=setxor(p_,p);
                    if value1<2
-                       clustMembsCell=getappdata(handles.figure1, 'clustMembsCell');
-                       numClust=length(clustMembsCell);
-                       for i=1:numClust
-                            point2cluster(clustMembsCell{i})=i;
-                        end
+                        point2cluster=horzcat(cell4(:).clusters);
                         heatmap_selection=[ heatmap_selection unique(point2cluster(p_))];
                         Show_Heatmap_Selection(heatmap_selection);
                         Show_Tissue_Selection(p_,handles);

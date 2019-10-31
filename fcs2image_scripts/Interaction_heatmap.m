@@ -50,7 +50,7 @@ if isempty(temp2)
             mat_interactions{i,j}=[temp4 ; temp2];
         end
     end
-    setappdata(handles.figure1,'mat_inter',mat_interactions);
+%     setappdata(handles.figure1,'mat_inter',mat_interactions);
 else
     mat_interactions=temp2;
 end

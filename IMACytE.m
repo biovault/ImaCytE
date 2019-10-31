@@ -25,7 +25,7 @@ function varargout = IMACytE(varargin)
 
 % Edit the above text to modify the response to help IMACytE
 
-% Last Modified by GUIDE v2.5 18-Jul-2019 17:22:55
+% Last Modified by GUIDE v2.5 31-Oct-2019 14:38:04
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -72,7 +72,8 @@ set(handles.slider2,'Visible','off')
 set(handles.arcsin,'Value',0);
 set(handles.arcsin,'Visible','off');
 set(handles.Compute_map,'Visible','off');
-
+count=0;
+setappdata(handles.figure1,'count_interaction',count);
 
 % Choose default command line output for untitled
 handles.output = hObject;
@@ -163,7 +164,7 @@ if isempty(markerlist); warndlg('Please select features for tSNE'); return; end
 used_data=n_data(:,markerlist);
 
 %% Select the tsne version you want to use
-tsne_choice=listdlg('PromptString','Select tSNE method to utilize:','ListString',{'tSNE', 'A-tSNE'},'SelectionMode','single');
+tsne_choice=listdlg('PromptString','Select tSNE method to utilize:','ListString',{'tSNE', 'Texture A-tSNE'},'SelectionMode','single');
 % tsne_choice=1;
 f = waitbar(0,'Please wait...');
 switch tsne_choice
@@ -175,10 +176,10 @@ switch tsne_choice
         end
     case 2
         try
-            tsne_map=fast_atsne(my_normalize(used_data,'column'));
+            tsne_map=my_texture_tsne(my_normalize(used_data,'column'));
         catch ME
             rethrow(ME)
-        end
+        end       
 end
 waitbar(1,f,'Finished');
 
@@ -353,15 +354,33 @@ function Interaction_Analysis_Callback(hObject, eventdata, handles)
 
 %% This callback initializes the microenvironemnt exploration of the data which is performed from the Interactions_Motifs functions
 
+global cell4
+global tsne_idx
+persistent origin_data
+
+count=getappdata(handles.figure1,'count_interaction');
+count=count+1;
+if count==1
+    origin_data=cell4;
+end
+setappdata(handles.figure1,'count_interaction',count);
+
+cell4=origin_data;
+samples={cell4(:).name};
+[selection_samples,~] = listdlg('PromptString','Select samples to utilize:','ListString',samples);
+cell4=origin_data(selection_samples);
+
+% indexes_left=find(ismember(tsne_idx,selection_samples));
+tsne_idx=[];
+for i=1:length(cell4)
+    tsne_idx=[ tsne_idx ones(1,length(cell4(i).data))*i];
+end
+handles=cell2clust(handles);
+
 cmap=getappdata(handles.figure1,'cmap');
 clustMembsCell=getappdata(handles.figure1, 'clustMembsCell');
 cluster_names=getappdata(handles.figure1, 'cluster_names');
 markerlist=getappdata(handles.figure1,'selected_markers');
-numClust=length(clustMembsCell);
-for i=1:numClust
-    point2cluster(clustMembsCell{i})=i;
-end
-
 % uisave({'clustMembsCell','cmap','cluster_names'},'For_interaction.mat')
 Interactions_Motifs(clustMembsCell,cmap,1,cluster_names,markerlist);
 
@@ -379,17 +398,16 @@ function slider2_Callback(hObject, eventdata, handles)
 
 global tsne_map
 global heatmap_selection
-global cell4
 
 bandwidth=get(hObject,'Value');
-
 [~,~,clustMembsCell] = HGMeanShiftCluster(tsne_map',bandwidth,'gaussian'); % Clustering in the tsne map is perfromed
 
 handles.Edit_val = uicontrol(handles.figure1,'Style','text','String',[num2str(round(bandwidth,2)) '(' num2str(length(clustMembsCell)) ')' ],'Units','normalized','position', [0.02 0.925 0.03 0.02 ]);
 try
     clustMembsCell(cellfun(@isempty,clustMembsCell))=[]; 
     setappdata(handles.figure1, 'clustMembsCell',clustMembsCell);  %Save the clusters
-
+    clust2cell(handles)
+    
     cluster_names=cell(1,length(clustMembsCell));  % Assign random names to clusters
     for i=1:length(clustMembsCell)
         cluster_names{i}=['Cluster' num2str(i)];
@@ -432,164 +450,6 @@ function Samples_Callbacki(~, ~, handles)
 
 Samples_Callback([],[], handles)
 
-% --------------------------------------------------------------------
-function Load_Clustering_Callback(hObject, eventdata, handles)
-% hObject    handle to Load_Clustering (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-%% This callback loads a saved clustering 
-global heatmap_selection
-global tsne_map
-
-[file,path] = uigetfile('*.mat');
-if isequal(file,0)
-   disp('User selected Cancel');
-else
-   disp(['User selected ', fullfile(path,file)]);
-end
-
-clustMembsCell=load([path '\' file]);
-old_clustMembsCell=getappdata(handles.figure1, 'clustMembsCell');
-
-cmap=clustMembsCell.cmap;
-
-try
-    markerlist=clustMembsCell.markerlist;
-    setappdata(handles.figure1,'selected_markers',markerlist);
-catch
-end
-try
-    cluster_names=clustMembsCell.cluster_names;
-    tsne_map=clustMembsCell.t_scatter;
-    setappdata(handles.figure1,'cluster_names',cluster_names);
-
-catch
-end
-try 
-    T=clustMembsCell.T;
-    setappdata(handles.figure1,'h_cluster',T);
-catch
-end
-clustMembsCell=clustMembsCell.clustMembsCell;
-%if ~isequal(length([clustMembsCell{:}]),length([old_clustMembsCell{:}]));     errordlg('Different number of cells loading than already loaded smaples') ; end
-
-global n_data
-markers=getappdata(handles.figure1,'markers');
-markers=horzcat('Clustered Data',markers);
-% selection_markers=ListBox_selection(markers);
-[markerlist,~] = listdlg('PromptString','Select markers to utilize:','ListString',markers);
-
-setappdata(handles.figure1,'selected_markers',markerlist);      %Load markers in order to cluster the centroids of the clusters according to their high dimensional signature
-numClust=length(clustMembsCell);
-fin_mat=zeros(length(markerlist),numClust);
-for i=1:numClust
-    temp=median(n_data(clustMembsCell{i},markerlist))';
-    fin_mat(:,i)=temp;
-end
-
-n=my_normalize(fin_mat,'row'); %standardize per row
-[~,leafOrder]=dendro_calculator(n);
-clustMembsCell=clustMembsCell(leafOrder);
-cmap=cmap(leafOrder,:);
-
-setappdata(handles.figure1, 'clustMembsCell',clustMembsCell);
-setappdata(handles.figure1, 'cmap',cmap);
-    
-setappdata(handles.figure1,'selection_markers',1);
-Update_Tissue(handles); 
-Update_Scatter(handles); 
-heatmap_data(handles)
-set(handles.uipanel4,'Visible','on')
-set(handles.uipanel1,'Visible','on')
-
-set(handles.figure1,'windowbuttonmotionfcn',@mousemove);
-heatmap_selection=[];
-
-
-% --------------------------------------------------------------------
-function Save_Clustering_Callback(hObject, eventdata, handles)
-% hObject    handle to Save_Clustering (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-%% This callback saves the current tsne map, colormap, cluster names and the markers used for the tsne creation
-
-global tsne_map
-global tsne_idx
-global cell4
-
-markerlist=getappdata(handles.figure1,'selected_markers');
-cluster_names=getappdata(handles.figure1, 'cluster_names');
-clustMembsCell=getappdata(handles.figure1, 'clustMembsCell');
-cmap=getappdata(handles.figure1, 'cmap');
-t_scatter=tsne_map;
-T=getappdata(handles.figure1,'h_cluster');
-tsne_idx=tsne_idx;
-
-% uisave({'clustMembsCell','cmap','t_scatter','cluster_names','T','tsne_idx','markerlist'},'clustered_data.mat')
-
-numClust=length(clustMembsCell);
-for i=1:numClust
-    point2cluster(clustMembsCell{i})=i;
-end
-r=uigetdir;
-for i=1:length(cell4)
-    t_idx=tsne_idx ==i;
-    temo=point2cluster(t_idx);
-    temo=[temo' ];
-    temp_markers={ 'Phenotype' };
-    my_csvwrite([r '\' cell4(i).name '_phenotypes.csv'],temo,temp_markers);
-end
-% --------------------------------------------------------------------
-function Save_Image_as_Callback(hObject, eventdata, handles)
-% hObject    handle to Save_Image_as (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% --unstable -- Saves the current version of the figures represented in the
-% tool
-saveas(gcf,'Screenshot.pdf');
-
-selection_markers=getappdata(handles.figure1,'selection_markers');
-f_scatter=figure;
-setappdata(handles.figure1,'Scatter_Figure',f_scatter);
-f_image=figure;
-setappdata(handles.figure1,'Tissue_Figure',f_image);
-f_heatmap=figure;
-setappdata(handles.figure1,'Heatmap_Figure',f_heatmap);
-% h=[f_scatter f_image f_heatmap handles.figure1];
-% set(h, 'WindowStyle', 'Docked');
-
-if selection_markers==1
-    try
-        Update_Scatter(handles); 
-    catch
-    end
-    Update_Tissue(handles); 
-    heatmap_data(handles)
-
-else
-    try
-        Update_Scatter_Continious_var(handles); 
-    catch
-    end
-    Update_Tissue_Continious_var(handles); 
-end
-
-f_scatter=handles.uipanel1;
-setappdata(handles.figure1,'Scatter_Figure',f_scatter);
-f_image=handles.uipanel2;
-setappdata(handles.figure1,'Tissue_Figure',f_image);
-f_heatmap=handles.uipanel4;
-setappdata(handles.figure1,'Heatmap_Figure',f_heatmap);
-
-% --------------------------------------------------------------------
-function Untitled_1_Callback(hObject, eventdata, handles)
-% hObject    handle to Untitled_1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 
 % --------------------------------------------------------------------
 function Find_Selection_Callback(hObject, eventdata, handles)
@@ -604,10 +464,165 @@ find_selection=temp -1;
 
 
 % --------------------------------------------------------------------
-function Export_fcs_Callback(hObject, eventdata, handles)
-% hObject    handle to Export_fcs (see GCBO)
+function Export_data_Callback(hObject, eventdata, handles)
+% hObject    handle to Export_data (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function Save_session_Callback(hObject, eventdata, handles)
+% hObject    handle to Save_session (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global tsne_map
+global tsne_idx
+
+markerlist=getappdata(handles.figure1,'selected_markers');
+cluster_names=getappdata(handles.figure1, 'cluster_names');
+clustMembsCell=getappdata(handles.figure1, 'clustMembsCell');
+cmap=getappdata(handles.figure1, 'cmap');
+t_scatter=tsne_map;
+T=getappdata(handles.figure1,'h_cluster');
+tsne_idx=tsne_idx;
+
+uisave({'clustMembsCell','cmap','t_scatter','cluster_names','T','tsne_idx','markerlist'},'clustered_data.mat')
+
+
+% --------------------------------------------------------------------
+function Save_csv_Callback(hObject, eventdata, handles)
+% hObject    handle to Save_csv (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global tsne_idx
+global cell4
+
+point2cluster=horzcat(cell4(:).clusters);
+r=uigetdir;
+for i=1:length(cell4)
+    t_idx=tsne_idx ==i;
+    temo=point2cluster(t_idx)';
+    temp_markers={ 'Phenotype' };
+    my_csvwrite([r '\' cell4(i).name '.csv'],temo,temp_markers);
+end
+
+% --------------------------------------------------------------------
+function Load_per_sample_Callback(hObject, eventdata, handles)
+% hObject    handle to Load_per_sample (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global cell4
+global heatmap_selection
+
+[file,path] = uigetfile('*.csv','Select One or More Files',  'MultiSelect', 'on');
+if length(cell4)~= length(file)
+    warndlg('Not all samples have phneotypes')
+end
+
+temp=cellfun(@(x) strsplit(x,'.csv'),file,'uni',0);
+temp=cellfun(@(x) x{1},temp,'uni',0);
+
+zero_clust=0;
+for i=1:length(file)
+   ind=ismember(temp,{cell4(i).name});
+   if isempty(find(ind, 1))
+       warndlg(['Sample ' cell4(i).name ' has not assigned phenotype. All their cells will be assigned with a unique one'])
+       cell4(i).clusters=zeros(1,size(cell4(i).data,1));
+       zero_clust=[zero_clust i];
+   else
+       cell4(i).clusters= xlsread([ path '\' file{ind}])';
+   end
+end
+
+for i=1:zero_clust
+    cell4(i).clusters=ones(1,size(cell4(i).data,1))*(max(horzcat(cell4(:).clusters))+1);
+end
+num_clust=max(horzcat(cell4(:).clusters));
+
+cluster_names=cell(1,num_clust);
+for i=1:num_clust
+    cluster_names{i}=['Cluster' num2str(i)];
+end
+
+handles=cell2clust(handles);
+markers=getappdata(handles.figure1,'markers');
+[selection_markers,~] = listdlg('PromptString','Select markers to utilize:','ListString',markers);
+
+setappdata(handles.figure1,'selected_markers',selection_markers);       
+setappdata(handles.figure1,'cluster_names',cluster_names);
+setappdata(handles.figure1,'selection_markers',1);
+
+color_assignment( handles)
+try
+    Update_Scatter(handles); 
+catch
+end
+
+Update_Tissue(handles);
+heatmap_data(handles)
+set(handles.uipanel4,'Visible','on')
+
+set(handles.figure1,'windowbuttonmotionfcn',@mousemove);
+heatmap_selection=[];
+
+% --------------------------------------------------------------------
+function Load_per_phenotype_Callback(hObject, eventdata, handles)
+% hObject    handle to Load_per_phenotype (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global heatmap_selection
+global tsne_idx
+
+[file,path] = uigetfile('*.fcs','Select One or More Files',  'MultiSelect', 'on');
+for i=1:length(file)
+    [a,~]=fca_readfcs([path '\' file{i}]);
+    clustMembsCell{i}=a(:,1);
+end
+setappdata(handles.figure1, 'clustMembsCell',clustMembsCell);
+
+cluster_names=cell(1,length(clustMembsCell));
+for i=1:length(clustMembsCell)
+    cluster_names{i}=['Cluster' num2str(i)];
+end
+
+
+if ~isequal(length(vertcat(clustMembsCell{:})),length(tsne_idx))
+    warndlg('Not all cells have an assigned phneotype')
+    clustMembsCell{end+1}=setdiff([1:length(tsne_idx)],vertcat(clustMembsCell{:}));
+    cluster_names{end+1}='Unclustered cells';
+end
+
+clust2cell(handles);
+markers=getappdata(handles.figure1,'markers');
+[selection_markers,~] = listdlg('PromptString','Select markers to utilize:','ListString',markers);
+
+setappdata(handles.figure1,'selected_markers',selection_markers);       
+setappdata(handles.figure1,'cluster_names',cluster_names);
+setappdata(handles.figure1,'selection_markers',1);
+
+color_assignment( handles)
+try
+    Update_Scatter(handles); 
+catch
+end
+
+Update_Tissue(handles);
+heatmap_data(handles)
+set(handles.uipanel4,'Visible','on')
+
+set(handles.figure1,'windowbuttonmotionfcn',@mousemove);
+heatmap_selection=[];
+
+% --------------------------------------------------------------------
+function Export_fcs_file_Callback(hObject, eventdata, handles)
+% hObject    handle to Export_fcs_file (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
 global cell4
 prev=0;
 r=uigetdir;
@@ -617,56 +632,82 @@ for i=1:length(cell4)
     temo=[temo' ones(length(cell4(i).idx),1)*(i) cell4(i).data];
     temp_markers=[ 'Cell_id'  'Image_id' cell4(1).cell_markers];
     fca_writefcs([r '\' cell4(i).name '_mean_aggregated.fcs'],temo,temp_markers,temp_markers);
+    prev=prev+ length(cell4(i).idx);
+end
+% --------------------------------------------------------------------
+function Export_csv_file_Callback(hObject, eventdata, handles)
+% hObject    handle to Export_csv_file (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global cell4
+prev=0;
+r=uigetdir;
+for i=1:length(cell4)
+    temo=1:length(cell4(i).idx);
+    temo=temo+prev;
+    temo=[temo' ones(length(cell4(i).idx),1)*(i) cell4(i).data];
+    temp_markers=[ 'Cell_id'  'Image_id' cell4(1).cell_markers];
     my_csvwrite([r '\' cell4(i).name '_mean_aggregated.csv'],temo,temp_markers);
     prev=prev+ length(cell4(i).idx);
 end
 
 
-
 % --------------------------------------------------------------------
-function Import_from_fcs_Callback(hObject, eventdata, handles)
-% hObject    handle to Import_from_fcs (see GCBO)
+function Load_session_Callback(hObject, eventdata, handles)
+% hObject    handle to Load_session (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+%% This callback loads a saved clustering 
 global heatmap_selection
-global tsne_idx
+global tsne_map
 
-r=uigetdir();
-direct_=dir(r);
-count=0;
-for i=3:length(direct_)
-    [a,~]=fca_readfcs([direct_(i).folder '\' direct_(i).name]);
-    clustMembsCell{i-2}=a(:,1);
-    count=count+length(a(:,1));
+[file,path] = uigetfile('*.mat');
+temp=load([path '\' file]);
+
+clustMembsCell=temp.clustMembsCell;
+setappdata(handles.figure1,'clustMembsCell',clustMembsCell)
+clust2cell(handles)
+
+if ~isempty(temp.cluster_names)
+    cluster_names=temp.cluster_names;
+else
+    cluster_names=cell(1,length(clustMembsCell));  % Assign random names to clusters
+    for i=1:length(clustMembsCell)
+        cluster_names{i}=['Cluster' num2str(i)];
+    end
 end
-
-if ~isequal(count,length(tsne_idx))
-    errordlg('Not all cells have an assigned cluster')
-end
-
-cluster_names=cell(1,length(clustMembsCell));
-for i=1:length(clustMembsCell)
-    cluster_names{i}=['Cluster' num2str(i)];
-end
-
-clustMembsCell{end+1}=setdiff([1:length(tsne_idx)],vertcat(clustMembsCell{:}));
-setappdata(handles.figure1, 'clustMembsCell',clustMembsCell);
-
-cluster_names{end+1}='Unclustered cells';
 setappdata(handles.figure1,'cluster_names',cluster_names);
-    
 setappdata(handles.figure1,'selection_markers',1);
-color_assignment( handles)
 
+if ~isempty(temp.markerlist)
+    markerlist=temp.markerlist;
+else
+    markers=getappdata(handles.figure1,'markers');
+    [markerlist,~] = listdlg('PromptString','Select markers to utilize:','ListString',markers);
+end
+setappdata(handles.figure1,'selected_markers',markerlist);
+
+if ~isempty(temp.cmap)
+    cmap=temp.cmap;
+    setappdata(handles.figure1, 'cmap',cmap);
+else
+    color_assignment( handles)
+end
+
+
+if ~isempty(temp.t_scatter) ; tsne_map=temp.t_scatter; end
 try
     Update_Scatter(handles); 
 catch
 end
 
-Update_Tissue(handles);
+Update_Tissue(handles); 
+Update_Scatter(handles); 
 heatmap_data(handles)
 set(handles.uipanel4,'Visible','on')
+set(handles.uipanel1,'Visible','on')
 
 set(handles.figure1,'windowbuttonmotionfcn',@mousemove);
 heatmap_selection=[];
