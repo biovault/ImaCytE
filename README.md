@@ -1,4 +1,4 @@
-# ImaCytE
+﻿# ImaCytE
 
 [![DOI](https://zenodo.org/badge/197559881.svg)](https://zenodo.org/badge/latestdoi/197559881)
 
@@ -30,6 +30,13 @@ If you have an older version or you don't have a Matlab installed in your PC you
 * Here, provide a **folder**. 
 In this folder should be **one subfolder for each sample** you want to load. 
 In each subfolder you must contain a mutli-**".tiff"** file with all markers as exported from MCD viewer and a **"*_mask.tiff"** file which is used as the cell mask
+
+
+### Video
+
+[![video](https://www.lcbc.nl/assets/papers/2019_imacyte/2019_imacyte.png)](https://vimeo.com/367029751)
+
+[Video](https://vimeo.com/367029751)  describing main functionalities of ImaCytE through the case study described in the paper.
 
 ### Contact
 

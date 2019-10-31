@@ -22,7 +22,7 @@ function varargout = Interactions_Motifs(varargin)
 
 % Edit the above text to modify the response to help Interactions_Motifs
 
-% Last Modified by GUIDE v2.5 15-Mar-2019 17:32:01
+% Last Modified by GUIDE v2.5 31-Oct-2019 17:06:28
 
 % In this pat of the tool the interactive analysis of cellular
 % microenvironment is performed
@@ -61,6 +61,8 @@ function Interactions_Motifs_OpeningFcn(hObject, eventdata, handles, varargin)
 global cell4
 global tsne_idx
 
+num_of_samples=length(cell4);
+
 clustMembsCell=varargin{1};
 cmap=varargin{2};
 value1=varargin{3};
@@ -81,22 +83,13 @@ x=inputdlg(prompt,dlg_title,num_lines,defaultans);
 number_of_pixels=str2num(x{:}); 
 
 %% Detect which are actually the neighbors of each cell
-for i=1:length(cell4)
+for i=1:num_of_samples
     [cell4(i).neighlist,cell4(i).adjacency]=neighlist_creation(cell4(i).mask_cell,number_of_pixels);
 end
 
-if isempty(clustMembsCell)
-    errordlg('No clustering selected')
-end
 numClust=length(clustMembsCell);
-for i=1:numClust
-    point2cluster(clustMembsCell{i})=i;
-end
+point2cluster=horzcat(cell4(:).clusters);
 
-%% Find the clusters of each cell id
-for i=1:length(cell4)
-    cell4(i).clusters=point2cluster(tsne_idx==i);
-end
 
 %% Assigns to a row of a matrix the neighbors of each cell
 ag_neigh=horzcat(cell4(:).neighlist);
@@ -111,17 +104,6 @@ tmp=clusteri+1;
 tmp2=[0 point2cluster];
 cluster_of_neigh_cells=tmp2(tmp);
 
-%% Calculate the relative frequency of colocalization among the clusters 
-cooc=zeros(numClust);
-for i=1:numClust
-    tmp=cluster_of_neigh_cells(point2cluster==i,:);
-    tmp=tmp(:);
-    tmp(tmp==0)=[];
-    [C,~,ic] = unique(tmp);
-    a_counts = accumarray(ic,1);
-    cooc(i,C)=a_counts;
-end
-
 %% Calculates a matrix where each row represents the relative frequency of a cell to colocalize with a cluster
 n_neigh=zeros(length(tsne_idx),numClust);
 for i=1:length(tsne_idx)
@@ -131,20 +113,34 @@ for i=1:length(tsne_idx)
     a_counts = accumarray(tmp(:),1);
     n_neigh(i,1:length(a_counts))=a_counts;
 end
-
 norm_neigh=n_neigh./sum(n_neigh,2);
 norm_neigh(isnan(norm_neigh))=0;
 
+%% Calculate the relative frequency of colocalization among the clusters 
+cooc=zeros(numClust);
+cooc2=zeros(numClust);
+
 for i=1:numClust
     tmp=n_neigh(point2cluster==i,:);
-    cooc(i,:)=sum(tmp);
+    if size(tmp,1)==1
+        cooc(i,:)=tmp;
+    else
+        cooc(i,:)=sum(tmp);
+    end
+    tmp=tmp>0;
+    if size(tmp,1)==1
+        cooc2(i,:)=tmp;
+    else
+        cooc2(i,:)=sum(tmp);
+    end
 end
 new_cooc=cooc./sum(cooc,2);
-
 
 setappdata(handles.figure1,'new_cooc',new_cooc);
 setappdata(handles.figure1,'clusteri',clusteri);
 setappdata(handles.figure1,'cooc_overall',cooc);
+setappdata(handles.figure1,'cooc_overall_uni',cooc2);
+
 setappdata(handles.figure1,'norm_neigh_list',norm_neigh);
 
 %% The interaction heatmap is presented
@@ -195,6 +191,7 @@ handles.output = hObject;
 guidata(hObject, handles);
 set(handles.uipanel1,'BackgroundColor',[1 1 1]);
 set(handles.uipanel3,'BackgroundColor',[1 1 1]);
+% set(0,'defaultfigurecolor',[1 1 1])
 
 % UIWAIT makes Interactions_Motifs wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -220,42 +217,14 @@ function Options_Callback(hObject, eventdata, handles)
 
 
 % --------------------------------------------------------------------
-function Save_img_as_Callback(hObject, eventdata, handles)
-% hObject    handle to Save_img_as (see GCBO)
+function Export_Interactions_Callback(hObject, eventdata, handles)
+% hObject    handle to Export_Interactions (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-set(handles.figure1,'windowbuttonmotionfcn',{@mousemove_interaction,handles});
 
-z=getappdata(handles.figure1,'z');
-fr=getappdata(handles.figure1,'fr');
-motifs=getappdata(handles.figure1,'motifs');
-idx_motif_cells=getappdata(handles.figure1,'idx_motif_cells');
-motif_idx=getappdata(handles.figure1,'motif_idx');
-new_cooc=getappdata(handles.figure1,'new_cooc');
-clusteri=getappdata(handles.figure1,'clusteri');
-clustMembsCell=getappdata(handles.figure1,'clustMembsCell');
+temp=getappdata(handles.figure1,'cooc_overall');
+temp2=getappdata(handles.figure1,'cooc_overall_uni');
+temp3=repmat([1:length(temp2)],length(temp2),1);
 
-hfig=figure;
-Motif_Creation_CallBack( hfig,handles,z,fr,motifs,idx_motif_cells,motif_idx );
-hfig=figure;
-Interaction_heatmap(hfig,new_cooc',(cell2mat(cellfun(@length,clustMembsCell,'UniformOutput',false))),handles,clusteri);
-
-hfig=handles.uipanel1;
-Interaction_heatmap(hfig,new_cooc',(cell2mat(cellfun(@length,clustMembsCell,'UniformOutput',false))),handles,clusteri);
-hfig=handles.uipanel2;
-Motif_Creation_CallBack( hfig,handles,z,fr,motifs,idx_motif_cells,motif_idx )
-
-
-f_scatter=figure;
-setappdata(handles.figure1,'Scatter_Figure',f_scatter);
-f_image=figure;
-setappdata(handles.figure1,'Tissue_Figure',f_image);
-Update_Tissue(handles); 
-f_image=handles.uipanel3;
-setappdata(handles.figure1,'Tissue_Figure',f_image);
-Update_Tissue(handles); 
-d = uicontextmenu(get(f_image,'Parent'));
-Sava_as_interaction=uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, f_image, handles});
-set(f_image,'UIContextMenu',d);
-
-set(handles.figure1,'windowbuttonmotionfcn',{@mousemove_interaction,handles});
+[file,name,~] = uiputfile('.csv','Colocalization_per_phneotype');
+my_csvwrite([name '\' file],[temp3(:) reshape(temp3',[],1)  reshape(temp',[],1) reshape(temp2',[],1)],{'Phenotype of interest', 'Phneotype of microenvironment','Counts of all the colocalized cells','Counts of at least one colocalized cell'});

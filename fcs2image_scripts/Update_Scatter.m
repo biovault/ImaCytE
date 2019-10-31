@@ -22,7 +22,7 @@ delete(get(f_scatter,'Children'));
 x=axes(f_scatter);
 tsne_scatter=scatter(tsne_map(:,1),tsne_map(:,2),10,colors,'filled');
 set(tsne_scatter,'ButtonDown',{@Image_Callback,0,point2cluster,handles});
-% axes(x)
+axes(x)
 c = uicontextmenu;
 Interact_per_point = uimenu('Parent',c,'Label','Point');
 uimenu('Parent',Interact_per_point,'Label','Brush','Callback',{@Scatter_Context_Menu,handles});

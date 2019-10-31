@@ -79,7 +79,8 @@ d = uicontextmenu;
 uimenu('Parent',d,'Label','Merge Selected Clusters','Callback',{@Heatmap_Context_menu,handles});
 set(h,'UIContextMenu',d);    
 set(ax_,'Position',[0.08 0.10 0.82 0.79]);
-
+temp=get(f,'children');
+set(temp(5),'ButtonDownFcn',{@marker_selection_Callback,handles})
 
 function nodeCallback(hObject,rt,clustMembsCell,handles)
 
