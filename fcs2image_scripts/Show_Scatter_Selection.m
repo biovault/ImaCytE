@@ -9,16 +9,13 @@ function Show_Scatter_Selection(list_of_cells,handles)
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 global tsne_map
+global cell4
 
 f=findobj('Tag','Scatter_axes');
-
+f=f(end);
 cmap=getappdata(handles.figure1,'cmap');
-clustMembsCell=getappdata(handles.figure1, 'clustMembsCell');
 
-numClust=length(clustMembsCell);
-for i=1:numClust
-    point2cluster(clustMembsCell{i})=i;
-end
+point2cluster=horzcat(cell4(:).clusters);
 
 rest_cells=setdiff(1:length(point2cluster),list_of_cells);
 cla(f);
@@ -37,7 +34,7 @@ end
 
 w=scatter(f,tsne_map(:,1),tsne_map(:,2));
 set(w,'MarkerEdgeAlpha',0);
-set(w,'ButtonDown',{@Image_Callback,0,point2cluster,handles});
+set(w,'ButtonDown',{@Image_Callback,0,handles});
 hold(f,'off') ;
 
 set(f,'Tag','Scatter_axes');

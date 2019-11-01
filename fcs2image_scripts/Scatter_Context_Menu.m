@@ -10,12 +10,11 @@ function Scatter_Context_Menu(source,~,handles)
 
     global p_
     global heatmap_selection
+    global cell4
+    
     axes_=findobj('Tag','Scatter_axes');
-    clustMembsCell=getappdata(handles.figure1, 'clustMembsCell');
-    numClust=length(clustMembsCell);
-    for i=1:numClust
-        point2cluster(clustMembsCell{i})=i;
-    end
+    point2cluster=horzcat(cell4(:).clusters);
+
     value1=getappdata(handles.figure1,'selection_markers');
     value1=value1(1);
     switch source.Label

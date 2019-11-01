@@ -24,7 +24,8 @@ obj=hittest(f);
 if isequal(obj.Tag,'H_i')  % Functionality performed upon hovering on the interaction heatmap
     a=get(obj,'parent');
     point=get(a,'currentpoint');
-    point2=round(point(1,1:2));  
+    point2=round(point(1,1:2)); 
+
     hi_points=getappdata(handles.figure1,'points_hi');
 
     if ~isequal(point2,[pre_point_hor pre_point_ver])
@@ -75,7 +76,7 @@ elseif find(obj == size_axes,1) % Functionality performed upon hovering on the b
     pre_point=find(obj == size_axes) ;
         delete(rect); %delete last tool tip
         delete(text_); %delete last tool tip
-        text_=text(get(obj,'Parent'),pre_point,obj.YData,['Cells:' num2str(obj.YData)],...
+        text_=text(get(obj,'Parent'),pre_point,obj.YData,['Cells:' num2str(obj.YData) '/ ' num2str(obj.YData / sum(vertcat(size_axes(:).YData)) *100) '%' ],...
             'backgroundcolor',[1 1 1],'tag','mytooltip','edgecolor',[1 1 1],...
             'hittest','off','Fontsize',8);   
 %     end

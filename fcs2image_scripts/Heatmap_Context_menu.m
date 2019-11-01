@@ -32,11 +32,9 @@ function Heatmap_Context_menu(source,~,handles)
             clustMembsCell(p5(2:end))=[];
             clustMembsCell=clustMembsCell(~cellfun('isempty',clustMembsCell));
             setappdata(handles.figure1, 'clustMembsCell', clustMembsCell)
+            clust2cell;
 
-            cmap=getappdata(handles.figure1, 'cmap');
-            cmap(p5(2:end),:)=[];
-            setappdata(handles.figure1, 'cmap', cmap)
-
+            color_assignment( handles);                         
             Update_Scatter(handles);
             Update_Tissue(handles);
             heatmap_data(handles)

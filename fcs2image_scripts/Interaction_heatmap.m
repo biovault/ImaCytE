@@ -21,9 +21,9 @@ try
 catch
 end
 popup=uicontrol( f,'Style', 'popup',...
-           'String', {'Normalize per column','Normalize per row','Normalize per column excluding'},...
+           'String', {'Normalize per column','Normalize per row','Normalize per column excluding','Absolute counts'},...
            'Position', [0.01 0 0.12 0.07],'Units','normalized',...
-           'Callback', {@Interaction_heatmap_Callback,sizes,handles,clusteri}); 
+           'Callback', {@Interaction_heatmap_Callback,handles}); 
 set(popup,'Position',[0.87 0.9 0.12 0.07]);
 clustMembsCell=getappdata(handles.figure1, 'clustMembsCell');
 numclust=length(clustMembsCell);
@@ -50,7 +50,7 @@ if isempty(temp2)
             mat_interactions{i,j}=[temp4 ; temp2];
         end
     end
-    setappdata(handles.figure1,'mat_inter',mat_interactions);
+%     setappdata(handles.figure1,'mat_inter',mat_interactions);
 else
     mat_interactions=temp2;
 end
@@ -113,6 +113,8 @@ setappdata(handles.figure1,'h_i_hor',rw4);
 setappdata(handles.figure1,'cell_sizes',rw3);
 
 setappdata(handles.figure1,'mat_interactions',mat_interactions);
+set(handles.figure1,'windowbuttonmotionfcn',{@mousemove_interaction,handles});
+
 
 function Heatmap_Callback(hObject,~,handles,mat_interactions)
 

@@ -103,8 +103,7 @@ for i=selection_samples
         try
             d = uicontextmenu(get(f_images,'Parent'));
             Interact_per_point = uimenu('Parent',d,'Label','Point');
-            uimenu('Parent',Interact_per_point,'Label','P.Select','Callback',{@Image_Context_Menu,i,handles,[]});
-            uimenu('Parent',Interact_per_point,'Label','P.Brush','Callback',{@Image_Context_Menu,i,handles,[]});
+            uimenu('Parent',Interact_per_point,'Label','Brush','Callback',{@Image_Context_Menu,i,handles});
             set(hOVM,'UIContextMenu',d);
         catch 
         end

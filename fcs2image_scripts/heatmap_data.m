@@ -35,6 +35,7 @@ for i=1:numClust
 end
 
 n=my_normalize(fin_mat,'row'); %standardize per row
+% n=my_rescale(fin_mat,'row'); %standardize per row
 
 %% Dendrogram calculation
 ax_dendr=axes(f);
@@ -78,7 +79,8 @@ d = uicontextmenu;
 uimenu('Parent',d,'Label','Merge Selected Clusters','Callback',{@Heatmap_Context_menu,handles});
 set(h,'UIContextMenu',d);    
 set(ax_,'Position',[0.08 0.10 0.82 0.79]);
-
+temp=get(f,'children');
+set(temp(5),'ButtonDownFcn',{@marker_selection_Callback,handles})
 
 function nodeCallback(hObject,rt,clustMembsCell,handles)
 
@@ -93,11 +95,10 @@ selection_markers=getappdata(handles.figure1,'selection_markers');
 if rt.Button ~=1; return; end
 a=get(hObject,'Parent');
 a=get(a,'currentpoint');
-a=floor(a(1,1))+1;
-if a>size(hObject.CData,2)
-    a=size(hObject.CData,2);
+a=round([a(1,1)]) ;
+if ~a(1)
+    a(1)=1;
 end
-
 heatmap_selection=setxor(heatmap_selection,a);
 if isempty(chk) && ~isempty(heatmap_selection)
     chk = 1;

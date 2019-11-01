@@ -1,4 +1,4 @@
-function Image_Callback(hObject,event,norm_fac,point2cluster,handles)
+function Image_Callback(hObject,event,norm_fac,handles)
 
 % Callabck upon the selection of a specific cell either in the tsne map or
 % in the samples when the cluster of the cells is visualized with the color channel
@@ -48,8 +48,8 @@ if isempty(chk)
                     'backgroundcolor',[1 1 1],'tag','mytooltip','edgecolor',[1 1 1],...
                     'hittest','off','Fontsize',8); 
             p_=setxor(p_,out);
+            point2cluster=horzcat(cell4(:).clusters);
             heatmap_selection=setxor(heatmap_selection,point2cluster(p_));
-            colormap(viridis);
         end
     end
 else

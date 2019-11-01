@@ -10,6 +10,8 @@ function color_assignment( handles,thres_value)
 %   Copyright 2019 Antonios Somarakis (LUMC) ImaCytE toolbox
 
 global n_data
+global cell4
+
 if nargin <2
     thres_value=0.3;
 end
@@ -65,6 +67,10 @@ end
 cmap=hsv2rgb(cmap);
 
 clustMembsCell=clustMembsCell(leafOrder);
+for i=1:length(cell4)
+    [~,temp]=sort(leafOrder);
+    cell4(i).clusters=temp(cell4(i).clusters);
+end
 cluster_names=cluster_names(leafOrder);
 cmap=cmap(leafOrder,:);
 T=T(leafOrder);
