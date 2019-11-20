@@ -586,7 +586,7 @@ global tsne_idx
 [file,path] = uigetfile('*.fcs','Select One or More Files',  'MultiSelect', 'on');
 for i=1:length(file)
     [a,~]=fca_readfcs([path '\' file{i}]);
-    clustMembsCell{i}=a(:,1);
+    clustMembsCell{i}=a(:,1)';
 end
 setappdata(handles.figure1, 'clustMembsCell',clustMembsCell);
 
@@ -596,7 +596,7 @@ for i=1:length(clustMembsCell)
 end
 
 
-if ~isequal(length(vertcat(clustMembsCell{:})),length(tsne_idx))
+if ~isequal(length(horzcat(clustMembsCell{:})),length(tsne_idx))
     warndlg('Not all cells have an assigned phneotype')
     clustMembsCell{end+1}=setdiff([1:length(tsne_idx)],vertcat(clustMembsCell{:}));
     cluster_names{end+1}='Unclustered cells';
