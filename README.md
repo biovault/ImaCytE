@@ -33,6 +33,8 @@ In each subfolder you must contain a mutli-**".tiff"** file with all markers as 
 
 ### Detailed Tutorial 
 
+[ImaCytE tutorial](https://github.com/asom/my_ImaCytE/blob/master/ImaCytE%20tutorial.pdf), as has deen written by ImaCytE's user, 
+Juan Manuel Ojeda García, Flow Cytometry Core Facility, Newcastle University
 
 ### Video
 
