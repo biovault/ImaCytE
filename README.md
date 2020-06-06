@@ -33,8 +33,8 @@ In each subfolder you must contain a mutli-**".tiff"** file with all markers as 
 
 ### Detailed Tutorial 
 
-[ImaCytE tutorial](https://github.com/asom/my_ImaCytE/blob/master/ImaCytE%20tutorial.pdf), as has deen written by ImaCytE's user,<br /> 
-Juan Manuel Ojeda García, Flow Cytometry Core Facility, Newcastle University
+[ImaCytE tutorial](https://github.com/biovault/ImaCytE/raw/master/ImaCytE%20tutorial.pdf), kindly written by ImaCytE user,<br /> 
+Juan Manuel Ojeda García, [Flow Cytometry Core Facility](https://www.ncl.ac.uk/fccf/), Newcastle University
 
 ### Video
 
@@ -42,7 +42,7 @@ Juan Manuel Ojeda García, Flow Cytometry Core Facility, Newcastle University
 
 [Video](https://vimeo.com/367029751)  describing main functionalities of ImaCytE through the case study described in the paper.
 
-[Video](https://vimeo.com/426563554)  presetning our paper in PacificVis 2020.
+[Video](https://vimeo.com/426563554)  presenting our paper in PacificVis 2020.
 
 
 ### Contact
