@@ -9,4 +9,5 @@
 #no images
 *.svg
 *.tiff
-
+/ImaCytE
+*.prj

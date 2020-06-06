@@ -17,11 +17,13 @@ for i=1:length(fnam)
     info = imfinfo(fname);
     markers=cell(1,length(info));
     for j = 1:length(info)
-        currentImage = imread(fname,j, 'Info', info);
-        imgs{i}(:,:,j)=currentImage;
         try
+            currentImage = imread(fname,j, 'Info', info);
+            imgs{i}(:,:,j)=currentImage;
             markers{j}=strtok(info(j).PageName,'(');
         catch
+            currentImage = imread(fname);
+            imgs{i}(:,:,j)=currentImage;
         end
     end
 end

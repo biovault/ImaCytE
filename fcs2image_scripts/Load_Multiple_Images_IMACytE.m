@@ -39,7 +39,7 @@ bw_props_names=fieldnames(bw_props);
 cell.idx=bw_props_(contains(bw_props_names,'PixelIdxList'),:);
 cell.cells_centre=vertcat(bw_props.Centroid);
 
-fnam=dir([folder '\*.ome.tiff']);
+fnam=dir([folder '\*ome.tiff']);
 
 %% Load their high-dimensional values and extract one vector per cell
 [cell.high_dim_img,cell.cell_markers] = my_montage_txt2(fnam,tiles);
