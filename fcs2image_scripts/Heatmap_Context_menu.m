@@ -32,7 +32,7 @@ function Heatmap_Context_menu(source,~,handles)
             clustMembsCell(p5(2:end))=[];
             clustMembsCell=clustMembsCell(~cellfun('isempty',clustMembsCell));
             setappdata(handles.figure1, 'clustMembsCell', clustMembsCell)
-            clust2cell;
+            clust2cell(handles);
 
             color_assignment( handles);                         
             Update_Scatter(handles);

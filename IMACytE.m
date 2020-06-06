@@ -311,9 +311,9 @@ setappdata(handles.figure1,'markers',markers);
 %% tsne_idx initialization
 n_data=double(vertcat(cell4(:).data));
 prev=0;
-for i=1:length(cell4)
-    tsne_idx(prev+1:prev+length(cell4(i).idx))=i;
-    prev=prev+ length(cell4(i).idx);
+for i=1:length(cell4)    
+    tsne_idx(prev+1:prev+size(cell4(i).data,1))=i;
+    prev=prev+ size(cell4(i).data,1);
 end
 %%
 set(handles.Markerlist,'String',markers);
@@ -502,18 +502,25 @@ function Save_csv_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-global tsne_idx
 global cell4
 
-point2cluster=horzcat(cell4(:).clusters);
 r=uigetdir;
-for i=1:length(cell4)
-    t_idx=tsne_idx ==i;
-    temo=point2cluster(t_idx)';
-    temp_markers={ 'Phenotype' };
-    my_csvwrite([r '\' cell4(i).name '.csv'],temo,temp_markers);
+answer = questdlg('Do you want to save the phenotype with a unique number of with the Given phenotype name', ...
+	'', ...
+	'Number','Text','Text');
+switch answer
+    case 'Number'
+        for i=1:length(cell4)
+            temo=cell4(i).clusters';
+            my_csvwrite([r '\' cell4(i).name '.csv'],temo,[]);
+        end
+    case 'Text'
+        for i=1:length(cell4)
+            cluster_names=getappdata(handles.figure1,'cluster_names');
+            temo=cluster_names(cell4(i).clusters);
+            writetable(cell2table(temo'),[r '\' cell4(i).name '.csv'],'WriteVariableNames',false);
+        end
 end
-
 % --------------------------------------------------------------------
 function Load_per_sample_Callback(hObject, eventdata, handles)
 % hObject    handle to Load_per_sample (see GCBO)
@@ -587,20 +594,20 @@ global tsne_idx
 for i=1:length(file)
     [a,~]=fca_readfcs([path '\' file{i}]);
     clustMembsCell{i}=a(:,1)';
+    temp=strsplit(file{i},'.fcs');
+    cluster_names{i}=temp{1};
 end
-setappdata(handles.figure1, 'clustMembsCell',clustMembsCell);
-
-cluster_names=cell(1,length(clustMembsCell));
-for i=1:length(clustMembsCell)
-    cluster_names{i}=['Cluster' num2str(i)];
-end
-
 
 if ~isequal(length(horzcat(clustMembsCell{:})),length(tsne_idx))
     warndlg('Not all cells have an assigned phneotype')
-    clustMembsCell{end+1}=setdiff([1:length(tsne_idx)],vertcat(clustMembsCell{:}));
+    try
+        clustMembsCell{end+1}=setdiff([1:length(tsne_idx)],vertcat(clustMembsCell{:}));
+    catch
+        clustMembsCell{end+1}=setdiff([1:length(tsne_idx)],horzcat(clustMembsCell{:}));
+    end
     cluster_names{end+1}='Unclustered cells';
 end
+setappdata(handles.figure1, 'clustMembsCell',clustMembsCell);
 
 clust2cell(handles);
 markers=getappdata(handles.figure1,'markers');
