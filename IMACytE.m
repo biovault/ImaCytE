@@ -531,6 +531,11 @@ global cell4
 global heatmap_selection
 
 [file,path] = uigetfile('*.csv','Select One or More Files',  'MultiSelect', 'on');
+if ischar(file)
+    file2={};
+    file2{1}=file;
+    file=file2;
+end
 if length(cell4)~= length(file)
     warndlg('Not all samples have phneotypes')
 end
@@ -546,18 +551,47 @@ for i=1:length(file)
        cell4(i).clusters=zeros(1,size(cell4(i).data,1));
        zero_clust=[zero_clust i];
    else
-       cell4(i).clusters= xlsread([ path '\' file{ind}])';
+       [number,txt]=xlsread([ path '\' file{ind}]);
+       if length(txt)<2
+            if isequal(number(1),'Var1')
+                cell4(i).clusters=number(2:end)';
+            else
+                cell4(i).clusters=number(1:end)';
+            end
+        else
+            if isequal(txt{1},'Var1')
+                cell4(i).clusters=txt(2:end)';
+            else
+                cell4(i).clusters=txt(1:end)';
+            end
+        end
+        if ~isequal(length(cell4.clusters),length(cell4.idx))
+            errordlg(['Different number of cells among clusters and mask for ' temp.name ' sample'])
+        end
    end
+end
+
+prev=0;
+for i=1:length(cell4)
+    tsne_idx(prev+1:prev+length(cell4(i).idx))=i;
+    prev=prev+ length(cell4(i).idx);
+end
+
+if iscell([cell4(:).clusters])
+    [cluster_names,~,cluster_ids]=unique([cell4(:).clusters]);
+    for i=1:length(cell4)
+        temp=cluster_ids(tsne_idx==i)';
+        cell4(i).clusters=temp;
+    end
+else
+    numClust=max(horzcat(cell4(:).clusters));
+    for i=1:numClust
+        cluster_names{i}=['Cluster' num2str(i)];
+    end
 end
 
 for i=1:zero_clust
     cell4(i).clusters=ones(1,size(cell4(i).data,1))*(max(horzcat(cell4(:).clusters))+1);
-end
-num_clust=max(horzcat(cell4(:).clusters));
-
-cluster_names=cell(1,num_clust);
-for i=1:num_clust
-    cluster_names{i}=['Cluster' num2str(i)];
 end
 
 handles=cell2clust(handles);

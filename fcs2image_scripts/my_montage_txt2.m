@@ -18,15 +18,14 @@ for i=1:length(fnam)
         try 
             markers{j}=strtok(info(j).PageName,'(');
         catch
-                  try
-                      markers{j}=strtok(info(j).ImageDescription,'(');
-                  catch
-                      markers{j}=strtok(info(j).Description,'(');
-                  end
+            try 
+                markers{j}=strtok(info(j).Description,'(');
+            catch
+            end
         end
+        if isempty(markers{j}); markers{j}=num2str(j); end 
         imgs{i}(:,:,j)=currentImage;
     end
-    
 end
 
 dim_of_ROI=[min(cellfun('size',imgs,1)) min(cellfun('size',imgs,2))];
