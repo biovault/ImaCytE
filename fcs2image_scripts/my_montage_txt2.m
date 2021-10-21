@@ -29,6 +29,7 @@ for i=1:length(fnam)
                     markers{j}=strtok(info(j).ImageDescription,'(');
                 catch
                 end
+
             end
         end
         if isempty(markers{j}); markers{j}=num2str(j); end 
@@ -36,6 +37,7 @@ for i=1:length(fnam)
     end
 end    
 new=imgs{1};
+
 
 % dim_of_ROI=[min(cellfun('size',imgs,1)) min(cellfun('size',imgs,2))];
 % new=[];
