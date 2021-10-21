@@ -114,10 +114,16 @@ end
 Show_Heatmap_Selection(heatmap_selection)
 if selection_markers==1
     Show_Tissue_Selection(horzcat(clustMembsCell{heatmap_selection}),handles);
-    Show_Scatter_Selection(horzcat(clustMembsCell{heatmap_selection}),handles);
+    try
+        Show_Scatter_Selection(horzcat(clustMembsCell{heatmap_selection}),handles);
+    catch
+    end
 else
     Show_Tissue_Selection_cont(horzcat(clustMembsCell{heatmap_selection}),handles);
-    Show_Scatter_Selection_cont(horzcat(clustMembsCell{heatmap_selection}),handles);
+    try
+        Show_Scatter_Selection_cont(horzcat(clustMembsCell{heatmap_selection}),handles);
+    catch
+    end
 end 
 
 function nodeCallback_axes(hObject,~,handles)

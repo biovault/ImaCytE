@@ -9,5 +9,12 @@
 #no images
 *.svg
 *.tiff
+<<<<<<< HEAD
 /ImaCytE
+/ImaCytE_2
+/ImaCytE_
+=======
+#No binaries
+/IMACytE
+>>>>>>> 72bcba2ac2324e33be2e8fa41ca6adb22aa44d81
 *.prj

@@ -1,0 +1,16 @@
+# no .out files
+*.out
+# no .asv files
+*.asv
+# no bin
+*.bin
+# no Matlab data files
+*.mat
+#no images
+*.svg
+*.tiff
+#No binaries
+/Data - Copy
+/Data
+*.prj
+/Cohort_comparison

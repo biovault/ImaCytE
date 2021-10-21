@@ -84,7 +84,7 @@ number_of_pixels=str2num(x{:});
 
 %% Detect which are actually the neighbors of each cell
 for i=1:num_of_samples
-    [cell4(i).neighlist,cell4(i).adjacency]=neighlist_creation(cell4(i).mask_cell,number_of_pixels);
+    [cell4(i).neighlist]=neighlist_creation(cell4(i),number_of_pixels);
 end
 
 numClust=length(clustMembsCell);
@@ -92,7 +92,7 @@ point2cluster=horzcat(cell4(:).clusters);
 
 
 %% Assigns to a row of a matrix the neighbors of each cell
-ag_neigh=horzcat(cell4(:).neighlist);
+ag_neigh=vertcat(cell4(:).neighlist)';
 clusteri=zeros(length(ag_neigh),max(cellfun('size',ag_neigh,1)));
 for i=1:length(ag_neigh)
     norm_fac=find(tsne_idx == tsne_idx(i),1)-1;  
