@@ -27,7 +27,7 @@ If you have an older version or you don't have a Matlab installed in your PC you
 
 ### Loading data for analysis 
 
-[Detailed step-by-step instructions] for the analysis of Imaging Mass Cytometry data, as has been written by our Imaging Mass Cytometry analysis expert,
+[Detailed step-by-step instructions](https://github.com/biovault/ImaCytE/blob/master/ImaCytE%20tutorial.pdf) for the analysis of Imaging Mass Cytometry data, as has been written by our Imaging Mass Cytometry analysis expert,
 Marieke Ijsselsteijn, Immunogenomics group, Leiden University Medical Center 
 
 ### Detailed Tutorial 
