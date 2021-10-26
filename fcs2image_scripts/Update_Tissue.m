@@ -56,6 +56,10 @@ for i=selection_samples
     pbaspect(tissue,[size(new_img,2) size(new_img,1) 1])
     setappdata(handles.figure1, [ 'image' num2str(i)], fg)
     
+%     hold on
+%     image(tissue,cell4(i).high_dim_img,'AlphaData',0.5);
+%     hold off
+    
     set(tissue,'XColor','none');
     set(tissue,'YColor','none');
     

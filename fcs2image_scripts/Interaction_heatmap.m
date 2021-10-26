@@ -21,7 +21,7 @@ try
 catch
 end
 popup=uicontrol( f,'Style', 'popup',...
-           'String', {'Normalize per column','Normalize per row','Normalize per column excluding','Absolute counts'},...
+           'String', {'Normalize per column','Normalize per row','Normalize per column excluding','Absolute counts','Permutation test'},...
            'Position', [0.01 0 0.12 0.07],'Units','normalized',...
            'Callback', {@Interaction_heatmap_Callback,handles}); 
 set(popup,'Position',[0.87 0.9 0.12 0.07]);
@@ -102,9 +102,9 @@ set(ax5,'Ydir','reverse')
 set(ax5,'Xdir','reverse')
 
 %% Arranging the position of the illustrations
-set(ax_,'Position',[0.05 0.12 0.78 0.79]);
-set(ax3,'Position',[0.05 0.95 0.78 0.04]);
-set(ax4,'Position',[0.05 0.915 0.78 0.03])
+set(ax_,'Position',[0.05 0.12 0.7 0.79]);
+set(ax3,'Position',[0.05 0.95 0.7 0.04]);
+set(ax4,'Position',[0.05 0.915 0.7 0.03])
 set(ax5,'Position', [0.02 0.12 0.02 0.79])
 
 setappdata(handles.figure1,'h_i',rt);

@@ -17,3 +17,4 @@ try
 catch
 end
 endheatmap_data(handles)
+heatmap_data(handles)

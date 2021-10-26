@@ -72,13 +72,78 @@ set(handles.slider2,'Visible','off')
 set(handles.arcsin,'Value',0);
 set(handles.arcsin,'Visible','off');
 set(handles.Compute_map,'Visible','off');
-count=0;
-setappdata(handles.figure1,'count_interaction',count);
 
+setappdata(handles.figure1,'count_interaction',0);
+setappdata(handles.figure1,'segment_value',0);
 % Choose default command line output for untitled
 handles.output = hObject;
 
-% Update handles structure
+%% Initialize and add more instances in the options menu
+
+f_scatter=handles.uipanel1; % where scatter plot is gonna be illustrated in the tool
+set(f_scatter,'Tag','tsne_plot');
+setappdata(handles.figure1,'Scatter_Figure',f_scatter);
+d = uicontextmenu(get(f_scatter,'Parent')); %contect menu for saving_as the samples
+Sava_as_interaction1=uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, f_scatter});
+set(f_scatter,'UIContextMenu',d);
+
+f_image=handles.uipanel2; % where images of samples are gonna be illustrated in the tool
+set(f_image,'Tag','Images_panel');
+setappdata(handles.figure1,'Tissue_Figure',f_image);
+d = uicontextmenu(get(f_image,'Parent')); %contect menu for saving_as the samples
+Sava_as_interaction2=uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, f_image});
+set(f_image,'UIContextMenu',d);
+
+f_heatmap=handles.uipanel4; % where heatmap is gonna be illustrated in the tool
+set(f_heatmap,'Tag','heatmap')
+setappdata(handles.figure1,'Heatmap_Figure',f_heatmap);
+d = uicontextmenu(get(f_heatmap,'Parent')); %contect menu for saving_as the samples
+Sava_as_interaction3=uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, f_heatmap});
+set(f_heatmap,'UIContextMenu',d);
+
+% Cohort Comparison
+mitem = uimenu(handles.figure1,'Text','Cohort Comparison');
+set(mitem,'MenuSelectedFcn',{@Cohort_comparison_Load,handles})
+
+% Load Raw Images
+mitem = uimenu(handles.Load_data,'Text','Load Raw Images');
+flag1=[0 1];
+set(mitem,'MenuSelectedFcn',{@Load_Data_,flag1,handles})
+
+% Load Thresholded Values
+mitem = uimenu(handles.Load_data,'Text','Load Thresholded Values');
+flag2=[1 1];
+set(mitem,'MenuSelectedFcn',{@Load_Data_,flag2,handles})
+
+% Load normalized data 
+mitem = uimenu(handles.Load_data,'Text','Load Normalized Data');
+flag3=[1 0];
+set(mitem,'MenuSelectedFcn',{@Load_Data_,flag3,handles})
+
+% % Include Batch effect removal button Under Options Menu
+% mitem = uimenu(handles.Options.Children(1),'Text','Batch effect removal');
+% set(mitem,'MenuSelectedFcn',{@Batch_effect_Removal_Callback,handles})
+
+% Enable samples clustering Under Options Menu
+mitem = uimenu(handles.Options.Children(1),'Text','Cluster samples based on Phenotypes');
+set(mitem,'MenuSelectedFcn',{@Cluster_per_sample,handles})
+
+% Enable overlay in scatter plot  Under Options Menu
+mitem = uimenu(handles.Options.Children(1),'Text','Overlay Metadata to tSNE');
+set(mitem,'MenuSelectedFcn',{@Scatter_overlay,handles})
+
+% Initializes the panels of the tool that depict the main figures
+gg=get(handles.uipanel2,'Children');
+delete(gg);
+set(handles.uipanel2,'Visible','on')
+set(handles.arcsin,'Visible','on');
+set(handles.Compute_map,'Visible','on');
+uicontrol(handles.uipanel2,'Style', 'pushbutton', 'String', 'Samples','Units','normalized','position', [0.1 0.96 0.2 0.025 ], 'callback', {@ Samples_Callbacki, handles});
+uicontrol(handles.uipanel2,'Style', 'pushbutton', 'String', 'Markers','Units','normalized','position', [0.7 0.96 0.2 0.025 ], 'callback', {@ Markers_Callbacki, handles}); 
+
+
+
+%% Update handles structure
 guidata(hObject, handles);
 setappdata(0,'mygui',gcf);
 set(handles.figure1,'windowbuttonmotionfcn',[]);
@@ -164,8 +229,8 @@ if isempty(markerlist); warndlg('Please select features for tSNE'); return; end
 used_data=n_data(:,markerlist);
 
 %% Select the tsne version you want to use
-tsne_choice=listdlg('PromptString','Select tSNE method to utilize:','ListString',{'tSNE', 'A-tSNE','Texture A-tSNE'},'SelectionMode','single');
-% tsne_choice=1;
+% tsne_choice=listdlg('PromptString','Select tSNE method to utilize:','ListString',{'tSNE', 'A-tSNE','Texture A-tSNE'},'SelectionMode','single');
+tsne_choice=1;
 f = waitbar(0,'Please wait...');
 switch tsne_choice
     case 1
@@ -272,85 +337,7 @@ function Load_data_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-%% This callback initializes the Loading the data process
 
-global cell4 % Each instance of cell4 is a different sample
-global tsne_map % represents the calculated tsne_map
-global n_data % represents the high dimensional data used for dimensionality reduction
-global tsne_idx % keeps track of the sample each cell belongs to
-tsne_idx=0;
-tsne_map=[];
-
-mode='Imaging'; 
-switch mode
-    case 'Imaging'         
-        cell4=[];
-        r=uigetdir();
-        direct_=dir(r);
-        f = waitbar(0,'Please wait...');
-        if isempty(find(vertcat(direct_(3:end).isdir), 1))
-            cell4=Load_Multiple_Images_IMACytE(r);
-        else
-            for i=3:length(direct_)
-                if direct_(i).isdir
-                    try
-                        cell4=[cell4 ; Load_Multiple_Images_IMACytE([direct_(i).folder '\' direct_(i).name])];
-                        waitbar((1/(length(direct_)-2)*(i-2)),f,['Loaded ' num2str(i-2) ' out of ' num2str(length(direct_)-2) ' images ']);
-                    catch
-                        warndlg(['Problem loading File: ' direct_(i).folder '\' direct_(i).name],'Error');
-                    end
-                end
-            end
-        end
-        waitbar(1,f,'Finished');
-end
-
-markers=cell4(1).cell_markers;
-setappdata(handles.figure1,'markers',markers);
-
-%% tsne_idx initialization
-n_data=double(vertcat(cell4(:).data));
-prev=0;
-for i=1:length(cell4)    
-    tsne_idx(prev+1:prev+size(cell4(i).data,1))=i;
-    prev=prev+ size(cell4(i).data,1);
-end
-%%
-set(handles.Markerlist,'String',markers);
-set(handles.Markerlist,'Value',[]);
-
-
-f_scatter=handles.uipanel1; % where scatter plot is gonna be illustrated in the tool
-set(f_scatter,'Tag','tsne_plot');
-setappdata(handles.figure1,'Scatter_Figure',f_scatter);
-d = uicontextmenu(get(f_scatter,'Parent')); %contect menu for saving_as the samples
-Sava_as_interaction1=uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, f_scatter});
-set(f_scatter,'UIContextMenu',d);
-
-f_image=handles.uipanel2; % where images of samples are gonna be illustrated in the tool
-set(f_image,'Tag','Images_panel');
-setappdata(handles.figure1,'Tissue_Figure',f_image);
-d = uicontextmenu(get(f_image,'Parent')); %contect menu for saving_as the samples
-Sava_as_interaction2=uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, f_image});
-set(f_image,'UIContextMenu',d);
-
-f_heatmap=handles.uipanel4; % where heatmap is gonna be illustrated in the tool
-set(f_heatmap,'Tag','heatmap')
-setappdata(handles.figure1,'Heatmap_Figure',f_heatmap);
-d = uicontextmenu(get(f_heatmap,'Parent')); %contect menu for saving_as the samples
-Sava_as_interaction3=uimenu('Parent',d,'Label','Save_as','Callback',{@Save_as_Context_Menu, f_heatmap});
-set(f_heatmap,'UIContextMenu',d);
-
-
-%% Initializes the panels of the tool that depict the main figures
-gg=get(handles.uipanel2,'Children');
-delete(gg);
-set(handles.uipanel2,'Visible','on')
-% set(handles.axes6,'Visible','off')
-set(handles.arcsin,'Visible','on');
-set(handles.Compute_map,'Visible','on');
-uicontrol(handles.uipanel2,'Style', 'pushbutton', 'String', 'Samples','Units','normalized','position', [0.1 0.96 0.2 0.025 ], 'callback', {@ Samples_Callbacki, handles});
-uicontrol(handles.uipanel2,'Style', 'pushbutton', 'String', 'Markers','Units','normalized','position', [0.7 0.96 0.2 0.025 ], 'callback', {@ Markers_Callbacki, handles}); 
 
 % --------------------------------------------------------------------
 function Interaction_Analysis_Callback(hObject, eventdata, handles)
@@ -521,6 +508,7 @@ switch answer
             writetable(cell2table(temo'),[r '\' cell4(i).name '.csv'],'WriteVariableNames',false);
         end
 end
+
 % --------------------------------------------------------------------
 function Load_per_sample_Callback(hObject, eventdata, handles)
 % hObject    handle to Load_per_sample (see GCBO)
@@ -632,6 +620,13 @@ for i=1:length(file)
     cluster_names{i}=temp{1};
 end
 
+
+% cluster_names=cell(1,length(clustMembsCell));
+% for i=1:length(clustMembsCell)
+%     cluster_names{i}=['Cluster' num2str(i)];
+% end
+
+
 if ~isequal(length(horzcat(clustMembsCell{:})),length(tsne_idx))
     warndlg('Not all cells have an assigned phneotype')
     try
@@ -674,12 +669,12 @@ global cell4
 prev=0;
 r=uigetdir;
 for i=1:length(cell4)
-    temo=1:length(cell4(i).idx);
+    temo=1:size(cell4(i).data,1);
     temo=temo+prev;
-    temo=[temo' ones(length(cell4(i).idx),1)*(i) cell4(i).data];
+    temo=[temo' ones(size(cell4(i).data,1),1)*(i) cell4(i).data];
     temp_markers=[ 'Cell_id'  'Image_id' cell4(1).cell_markers];
     fca_writefcs([r '\' cell4(i).name '_mean_aggregated.fcs'],temo,temp_markers,temp_markers);
-    prev=prev+ length(cell4(i).idx);
+    prev=prev+ size(cell4(i).data,1);
 end
 % --------------------------------------------------------------------
 function Export_csv_file_Callback(hObject, eventdata, handles)
@@ -691,12 +686,12 @@ global cell4
 prev=0;
 r=uigetdir;
 for i=1:length(cell4)
-    temo=1:length(cell4(i).idx);
+    temo=1:size(cell4(i).data,1);
     temo=temo+prev;
-    temo=[temo' ones(length(cell4(i).idx),1)*(i) cell4(i).data];
+    temo=[temo' ones(size(cell4(i).data,1),1)*(i) cell4(i).data];
     temp_markers=[ 'Cell_id'  'Image_id' cell4(1).cell_markers];
     my_csvwrite([r '\' cell4(i).name '_mean_aggregated.csv'],temo,temp_markers);
-    prev=prev+ length(cell4(i).idx);
+    prev=prev+ size(cell4(i).data,1);
 end
 
 
@@ -758,3 +753,43 @@ set(handles.uipanel1,'Visible','on')
 
 set(handles.figure1,'windowbuttonmotionfcn',@mousemove);
 heatmap_selection=[];
+
+function Batch_effect_Removal_Callback(hObject, eventdata, handles)
+% hObject    handle to Batch_effect_Removal (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global cell4
+global tsne_map
+global tsne_idx
+
+tsne_idx=[];
+tsne_map=[];
+f = waitbar(0,'Please wait...');
+
+cell4=debatching(cell4);
+markers=cell4(1).cell_markers;
+setappdata(handles.figure1,'markers',markers);
+
+prev=0;
+for i=1:length(cell4)    
+    tsne_idx(prev+1:prev+length(cell4(i).idx))=i;
+    prev=prev+ length(cell4(i).idx);
+end
+
+waitbar(1,f,'Finished');
+set(handles.Markerlist,'String',markers);
+set(handles.Markerlist,'Value',[]);
+set(handles.uipanel1,'Visible','off')
+set(handles.uipanel4,'Visible','off')
+set(handles.arcsin,'Visible','off')
+
+delete(get(handles.uipanel2,'Children'));
+uicontrol(handles.uipanel2,'Style', 'pushbutton', 'String', 'Samples','Units','normalized','position', [0.1 0.96 0.2 0.025 ], 'callback', {@ Samples_Callback, handles});
+uicontrol(handles.uipanel2,'Style', 'pushbutton', 'String', 'Markers','Units','normalized','position', [0.7 0.96 0.2 0.025 ], 'callback', {@ Markers_Callback, handles});
+
+function Scatter_overlay(hObject, eventdata, handles)
+scatter_overlay(handles)
+
+function Cluster_per_sample(hObject, eventdata, handles)
+cluster_per_sample(handles)

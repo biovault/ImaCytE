@@ -14,8 +14,8 @@ function Interaction_heatmap_Callback( source,~,handles )
 cooc=getappdata(handles.figure1,'cooc_overall');
 f=handles.uipanel1;
 
-h_i=get(f,'Children');
-h_i=get(h_i(6),'Children');
+h_ii=get(f,'Children');
+h_i=get(h_ii(6),'Children');
 
 switch source.Value
     case 1 
@@ -27,11 +27,15 @@ switch source.Value
         new_cooc=cooc./sum(new_cooc);
     case 4
         new_cooc=cooc;
+    case 5
+        new_cooc=Permutation_heatmap(handles,cooc);
 end
+
+% caxis(h_ii(6),[0 max(new_cooc(:))])
+caxis(h_ii(6),[0 quantile(new_cooc(:),0.99)])
 
 set(h_i(end),'CData',new_cooc)
 set(handles.figure1,'windowbuttonmotionfcn',{@mousemove_interaction,handles});
 
 
 end
-

@@ -20,9 +20,10 @@ permutations=50;
 prompt={'Minimum number of cells grouped under a motif that makes it significant'};
 dlg_title='Input';
 num_lines=1;
-defaultans={'5'};
+defaultans={'20'};
 x=inputdlg(prompt,dlg_title,num_lines,defaultans);
 val=str2num(x{:}); 
+
 % val=5;
 
 if nargin<3

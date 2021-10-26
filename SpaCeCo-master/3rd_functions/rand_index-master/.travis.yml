@@ -1,0 +1,11 @@
+language: cpp
+
+compiler: g++
+
+before_script:
+  - sudo add-apt-repository ppa:picaso/octave -y
+  - sudo apt-get update
+  - sudo apt-get install octave
+  
+script: 
+  - octave test_rand_index.m

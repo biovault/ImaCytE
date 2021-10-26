@@ -58,5 +58,5 @@ for i=1:size(tiles,1)
     new=[new ; temp1];
 end
 
-end
+
 
