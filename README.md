@@ -43,9 +43,11 @@ Juan Manuel Ojeda García, [Flow Cytometry Core Facility](https://www.ncl.ac.uk/
 
 [Video](https://vimeo.com/426563554)  presenting our paper in PacificVis 2020.
 
+[Video](https://vimeo.com/607218509)  presenting the main functionalities of our Visual Cohort comparison tool (SpaCeCo), which is integrated in ImaCytE.
+
 [Video](https://www.youtube.com/watch?v=l77N4H7t2Lc&t=252s) presenting an overview of our work (preprocessing, ImaCytE, SpaCeCo) in EuroVis 2021. 
 
 
 ### Contact
 
-Antonios Somarakis a.somarakis@lumc.nl
+Antonios Somarakis antonis.som@gmail.com
